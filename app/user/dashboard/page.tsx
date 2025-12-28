@@ -1,45 +1,20 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart } from "lucide-react";
+import { getDashboardStats, getBankLogs } from "@/lib/actions/dashboard";
+import { AddToCartButton } from "@/app/shop/add-to-cart-button";
 
-const bankLogs = [
-  {
-    id: 1,
-    product: "Chase Bank Checking Account",
-    type: "Personal Checking",
-    bank: "Chase Bank",
-    balance: 10979,
-    price: 110,
-    region: "US United States",
-    status: "Available",
-    description: "Chase Bank checking account with debit card, online banking access. RDP Login included.",
-  },
-  {
-    id: 2,
-    product: "Chase Bank Checking Account",
-    type: "Personal Checking",
-    bank: "Chase Bank",
-    balance: 29996,
-    price: 300,
-    region: "US United States",
-    status: "Available",
-    description: "Chase Bank checking account with debit card, online banking access. RDP Login included.",
-  },
-  {
-    id: 3,
-    product: "Chase Bank Checking Account",
-    type: "Personal Checking",
-    bank: "Chase Bank",
-    balance: 21471,
-    price: 215,
-    region: "US United States",
-    status: "Available",
-    description: "Chase Bank checking account with debit card, online banking access. RDP Login included.",
-  },
-];
+export default async function DashboardPage() {
+  const [statsResult, bankLogsResult] = await Promise.all([
+    getDashboardStats(),
+    getBankLogs(),
+  ]);
 
-export default function DashboardPage() {
+  const stats = statsResult.success && statsResult.data ? statsResult.data : {
+    availableFunds: 0,
+    totalCompleted: 0,
+    awaitingProcessing: 0,
+  };
+  const bankLogs = bankLogsResult.success && bankLogsResult.data ? bankLogsResult.data : [];
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground">
       <div className="w-full max-w-6xl p-8">
@@ -50,7 +25,7 @@ export default function DashboardPage() {
             <CardHeader className="w-full flex items-center justify-center p-6">
               <div className="flex flex-col items-center justify-center w-full">
                 <span className="text-base font-medium text-muted-foreground">Available funds</span>
-                <span className="text-3xl font-bold text-primary">$0.00</span>
+                <span className="text-3xl font-bold text-primary">${stats.availableFunds.toFixed(2)}</span>
               </div>
             </CardHeader>
           </Card>
@@ -58,7 +33,7 @@ export default function DashboardPage() {
             <CardHeader className="w-full flex items-center justify-center p-6">
               <div className="flex flex-col items-center justify-center w-full">
                 <span className="text-base font-medium text-muted-foreground">Total completed</span>
-                <span className="text-3xl font-bold">0</span>
+                <span className="text-3xl font-bold">{stats.totalCompleted}</span>
               </div>
             </CardHeader>
           </Card>
@@ -66,7 +41,7 @@ export default function DashboardPage() {
             <CardHeader className="w-full flex items-center justify-center p-6">
               <div className="flex flex-col items-center justify-center w-full">
                 <span className="text-base font-medium text-muted-foreground">Awaiting processing</span>
-                <span className="text-3xl font-bold">0</span>
+                <span className="text-3xl font-bold">{stats.awaitingProcessing}</span>
               </div>
             </CardHeader>
           </Card>
@@ -88,36 +63,38 @@ export default function DashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {bankLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-stone-900/60 transition">
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="rounded-full px-2 py-1 text-xs font-semibold bg-primary/10 text-primary">CH</Badge>
-                        <div>
-                          <div className="font-semibold text-sm">{log.product}</div>
-                          <div className="text-xs text-muted-foreground">{log.type}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 max-w-xs text-sm text-muted-foreground">{log.description}</td>
-                    <td className="px-4 py-3 text-sm">{log.bank}</td>
-                    <td className="px-4 py-3 text-primary font-bold">${log.balance.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-foreground font-semibold">${log.price}</td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">{log.region}</td>
-                    <td className="px-4 py-3">
-                      <Badge variant="secondary" className="text-xs font-semibold px-2 py-1 bg-green-700/20 text-green-400">{log.status}</Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Button
-                        size="sm"
-                        className="bg-primary hover:bg-primary/90 text-white flex items-center gap-2 px-4 py-2 rounded-full shadow transition-transform duration-150 active:scale-95"
-                      >
-                        <ShoppingCart className="w-4 h-4" />
-                        Add to Cart
-                      </Button>
+                {bankLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
+                      No bank logs available
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  bankLogs.map((log) => (
+                    <tr key={log.id} className="hover:bg-stone-900/60 transition">
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary" className="rounded-full px-2 py-1 text-xs font-semibold bg-primary/10 text-primary">CH</Badge>
+                          <div>
+                            <div className="font-semibold text-sm">{log.product}</div>
+                            <div className="text-xs text-muted-foreground">{log.type}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 max-w-xs text-sm text-muted-foreground">{log.description}</td>
+                      <td className="px-4 py-3 text-sm">{log.bank}</td>
+                      <td className="px-4 py-3 text-primary font-bold">${log.balance.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-foreground font-semibold">${log.price}</td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground">{log.region}</td>
+                      <td className="px-4 py-3">
+                        <Badge variant="secondary" className="text-xs font-semibold px-2 py-1 bg-green-700/20 text-green-400">{log.status}</Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <AddToCartButton productId={log.id} />
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
