@@ -1,34 +1,30 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { getProducts, createProduct } from "@/lib/actions/products";
+import { apiHandler, parseRequestBody, validateRequiredFields } from "@/lib/utils/api-handler";
 
-export async function GET() {
-  try {
-    const result = await getProducts();
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 500 });
-    }
-    return NextResponse.json({ data: result.data });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+export const GET = apiHandler(async () => {
+  return await getProducts();
+});
+
+export const POST = apiHandler(async (request?: NextRequest) => {
+  if (!request) {
+    return { success: false, error: "Request is required" };
   }
-}
+  const body = await parseRequestBody<{
+    name: string;
+    price: number;
+    balance: number;
+    region: string;
+    bank: string;
+    type: string;
+    status?: string;
+    description?: string;
+  }>(request);
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const result = await createProduct(body);
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
-    }
-    return NextResponse.json({ data: result.data }, { status: 201 });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+  const validation = validateRequiredFields(body, ["name", "price", "balance", "region", "bank", "type"]);
+  if (!validation.valid) {
+    return { success: false, error: validation.error };
   }
-}
 
+  return await createProduct(body);
+}, { successStatus: 201 });
