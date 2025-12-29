@@ -3,8 +3,10 @@
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/db/prisma";
 
-const SESSION_COOKIE_NAME = "kubera_session";
-const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+import { SESSION_CONFIG } from "@/lib/utils/constants";
+
+const SESSION_COOKIE_NAME = SESSION_CONFIG.COOKIE_NAME;
+const SESSION_MAX_AGE = SESSION_CONFIG.MAX_AGE;
 
 export interface SessionUser {
   id: string;
