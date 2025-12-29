@@ -1,22 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { getOrder } from "@/lib/actions/orders";
+import { apiHandler } from "@/lib/utils/api-handler";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const result = await getOrder(id);
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 404 });
+export const GET = apiHandler(
+  async (request?: NextRequest, context?: { params?: Promise<{ id: string }> }) => {
+    if (!context?.params) {
+      return { success: false, error: "Order ID is required" };
     }
-    return NextResponse.json({ data: result.data });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
-
+    const { id } = await context.params;
+    return await getOrder(id);
+  },
+  { errorStatus: 404 }
+);
