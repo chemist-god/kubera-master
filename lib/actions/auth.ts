@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/db/prisma";
 import { hash, compare } from "bcryptjs";
+import { createSession } from "@/lib/auth/session";
 
 // Types
 export interface RegisterData {
@@ -250,6 +251,9 @@ export async function login(data: LoginData): Promise<AuthResult<{ id: string; u
     if (!passwordValid) {
       return { success: false, error: "Invalid username or password" };
     }
+    
+    // Create session
+    await createSession(user.id);
     
     // Return user data (without password)
     return {
