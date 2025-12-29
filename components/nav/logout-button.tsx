@@ -2,34 +2,22 @@
 
 import { logout } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { ROUTES } from "@/lib/utils/constants";
 
 export function LogoutButton() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
 
   async function handleLogout() {
-    setIsLoading(true);
-    try {
-      const result = await logout();
-      if (result.success) {
-        router.push("/login");
-        router.refresh();
-      }
-    } catch (error) {
-      console.error("Logout error:", error);
-    } finally {
-      setIsLoading(false);
+    const result = await logout();
+    if (result.success) {
+      router.push(ROUTES.LOGIN);
+      router.refresh();
     }
   }
 
   return (
-    <button
-      onClick={handleLogout}
-      disabled={isLoading}
-      className="w-full text-left"
-    >
-      {isLoading ? "Logging out..." : "Logout"}
+    <button onClick={handleLogout} className="w-full text-left">
+      Logout
     </button>
   );
 }
