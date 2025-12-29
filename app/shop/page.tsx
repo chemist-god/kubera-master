@@ -4,10 +4,11 @@ import { Input } from "@/components/ui/input";
 import { ShoppingCart } from "lucide-react";
 import { getProducts } from "@/lib/actions/products";
 import { AddToCartButton } from "./add-to-cart-button";
+import { Product } from "@/lib/api/types";
 
 export default async function ShopPage() {
   const result = await getProducts();
-  const products = result.success && result.data ? result.data : [];
+  const products: Product[] = result.success && result.data ? result.data : [];
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground">
@@ -31,7 +32,7 @@ export default async function ShopPage() {
               No products available
             </div>
           ) : (
-            products.map((product) => (
+            products.map((product: Product) => (
               <Card key={product.id} className="p-6 flex flex-col gap-2">
                 <CardHeader>
                   <CardTitle className="text-lg">{product.name}</CardTitle>
