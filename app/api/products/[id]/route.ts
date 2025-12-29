@@ -1,61 +1,50 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { getProduct } from "@/lib/actions/products";
 import { prisma } from "@/lib/db/prisma";
+import { apiHandler, parseRequestBody } from "@/lib/utils/api-handler";
+import { withErrorHandling } from "@/lib/utils/result";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const result = await getProduct(id);
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 404 });
+export const GET = apiHandler(
+  async (request?: NextRequest, context?: { params?: Promise<{ id: string }> }) => {
+    if (!context?.params) {
+      return { success: false, error: "Product ID is required" };
     }
-    return NextResponse.json({ data: result.data });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
+    const { id } = await context.params;
+    return await getProduct(id);
+  },
+  { errorStatus: 404 }
+);
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const body = await request.json();
-    const product = await prisma.product.update({
-      where: { id },
-      data: body,
-    });
-    return NextResponse.json({ data: product });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
+export const PUT = apiHandler(
+  async (request?: NextRequest, context?: { params?: Promise<{ id: string }> }) => {
+    if (!request || !context?.params) {
+      return { success: false, error: "Request and product ID are required" };
+    }
+    const { id } = await context.params;
+    const body = await parseRequestBody(request);
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    await prisma.product.delete({
-      where: { id },
-    });
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return await withErrorHandling(async () => {
+      const product = await prisma.product.update({
+        where: { id },
+        data: body,
+      });
+      return product;
+    }, "Failed to update product");
   }
-}
+);
 
+export const DELETE = apiHandler(
+  async (request?: NextRequest, context?: { params?: Promise<{ id: string }> }) => {
+    if (!context?.params) {
+      return { success: false, error: "Product ID is required" };
+    }
+    const { id } = await context.params;
+
+    return await withErrorHandling(async () => {
+      await prisma.product.delete({
+        where: { id },
+      });
+      return { success: true };
+    }, "Failed to delete product");
+  }
+);
