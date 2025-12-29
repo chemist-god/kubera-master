@@ -27,8 +27,11 @@ export function handleApiResponse<T>(
  * Wraps API route handler with error handling
  * Supports handlers with or without request parameter
  */
-export function apiHandler<T>(
-  handler: (request?: NextRequest, context?: { params?: Promise<Record<string, string>> }) => Promise<ActionResult<T>>,
+export function apiHandler<
+  TReturn extends ActionResult<unknown>,
+  TParams extends Record<string, string> = Record<string, string>
+>(
+  handler: (request?: NextRequest, context?: { params?: Promise<TParams> }) => Promise<TReturn>,
   options?: {
     successStatus?: number;
     errorStatus?: number;
@@ -36,7 +39,7 @@ export function apiHandler<T>(
 ) {
   return async (
     request?: NextRequest,
-    context?: { params?: Promise<Record<string, string>> }
+    context?: { params?: Promise<TParams> }
   ): Promise<NextResponse> => {
     try {
       const result = await handler(request, context);
