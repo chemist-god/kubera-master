@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/db/prisma";
 import { hash, compare } from "bcryptjs";
-import { createSession } from "@/lib/auth/session";
+import { createSession, deleteSession } from "@/lib/auth/session";
 
 // Types
 export interface RegisterData {
@@ -267,5 +267,15 @@ export async function login(data: LoginData): Promise<AuthResult<{ id: string; u
   } catch (error) {
     console.error("Login error:", error);
     return { success: false, error: "Failed to login. Please try again later." };
+  }
+}
+
+export async function logout(): Promise<AuthResult> {
+  try {
+    await deleteSession();
+    return { success: true };
+  } catch (error) {
+    console.error("Logout error:", error);
+    return { success: false, error: "Failed to logout" };
   }
 }
