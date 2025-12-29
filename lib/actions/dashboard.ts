@@ -1,14 +1,12 @@
 "use server";
 
 import { prisma } from "@/lib/db/prisma";
-import { getCurrentUserId } from "@/lib/auth/session";
+import { requireAuth } from "@/lib/auth/require-auth";
+import { withErrorHandling } from "@/lib/utils/result";
 
 export async function getDashboardStats() {
-  try {
-    const userId = await getCurrentUserId();
-    if (!userId) {
-      return { success: false, error: "Not authenticated" };
-    }
+  return withErrorHandling(async () => {
+    const userId = await requireAuth();
 
     const [wallet, orders] = await Promise.all([
       prisma.wallet.findUnique({
@@ -26,21 +24,17 @@ export async function getDashboardStats() {
     ).length;
 
     return {
-      success: true,
-      data: {
-        availableFunds,
-        totalCompleted,
-        awaitingProcessing,
-      },
+      availableFunds,
+      totalCompleted,
+      awaitingProcessing,
     };
-  } catch (error) {
-    console.error("Error fetching dashboard stats:", error);
-    return { success: false, error: "Failed to fetch dashboard stats" };
-  }
+  }, "Failed to fetch dashboard stats");
 }
 
 export async function getBankLogs() {
-  try {
+  return withErrorHandling(async () => {
+    await requireAuth(); // Ensure user is authenticated
+
     // Bank logs are essentially products available for purchase
     const products = await prisma.product.findMany({
       where: { status: "Available" },
@@ -48,7 +42,7 @@ export async function getBankLogs() {
     });
 
     // Transform products to bank log format
-    const bankLogs = products.map((product) => ({
+    return products.map((product) => ({
       id: product.id,
       product: product.name,
       type: product.type,
@@ -59,11 +53,5 @@ export async function getBankLogs() {
       status: product.status,
       description: product.description || "",
     }));
-
-    return { success: true, data: bankLogs };
-  } catch (error) {
-    console.error("Error fetching bank logs:", error);
-    return { success: false, error: "Failed to fetch bank logs" };
-  }
+  }, "Failed to fetch bank logs");
 }
-
