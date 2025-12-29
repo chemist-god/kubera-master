@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { login } from "@/lib/actions/auth";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { CAPTCHA_CONFIG, ROUTES } from "@/lib/utils/constants";
 
-const CAPTCHA_QUESTION = 18 + 17;
-const CAPTCHA_ANSWER = 35;
+const CAPTCHA_QUESTION = CAPTCHA_CONFIG.LOGIN.question;
+const CAPTCHA_ANSWER = CAPTCHA_CONFIG.LOGIN.answer;
 
 export function LoginForm() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export function LoginForm() {
 
       if (result.success && result.data) {
         // Get redirect URL from query params or default to dashboard
-        const redirectUrl = searchParams.get("redirect") || "/user/dashboard";
+        const redirectUrl = searchParams.get("redirect") || ROUTES.DASHBOARD;
         router.push(redirectUrl);
         router.refresh();
       } else {
