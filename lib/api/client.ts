@@ -23,14 +23,15 @@ async function apiRequest<T>(
       const errorData = await response.json().catch(() => ({
         error: `HTTP ${response.status}: ${response.statusText}`,
       }));
-      return { error: errorData.error || "Request failed" };
+      return { success: false, error: errorData.error || "Request failed" };
     }
 
     const data = await response.json();
-    return { data: data.data || data, success: true };
+    return { success: true, data: data.data || data };
   } catch (error) {
     console.error("API request error:", error);
     return {
+      success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",
     };
   }
