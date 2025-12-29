@@ -4,13 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { login } from "@/lib/actions/auth";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const CAPTCHA_QUESTION = 18 + 17;
 const CAPTCHA_ANSWER = 35;
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -33,9 +34,10 @@ export function LoginForm() {
       });
 
       if (result.success && result.data) {
-        // TODO: Set session/cookie here when auth is implemented
-        // For now, redirect to dashboard
-        router.push("/user/dashboard");
+        // Get redirect URL from query params or default to dashboard
+        const redirectUrl = searchParams.get("redirect") || "/user/dashboard";
+        router.push(redirectUrl);
+        router.refresh();
       } else {
         setError(result.error || "Login failed. Please check your credentials.");
       }
