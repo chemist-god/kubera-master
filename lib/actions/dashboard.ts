@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { withErrorHandling } from "@/lib/utils/result";
+import { Order } from "@prisma/client";
 
 export async function getDashboardStats() {
   return withErrorHandling(async () => {
@@ -18,9 +19,9 @@ export async function getDashboardStats() {
     ]);
 
     const availableFunds = wallet?.balance || 0;
-    const totalCompleted = orders.filter((o) => o.status === "Completed").length;
+    const totalCompleted = orders.filter((o: Order) => o.status === "Completed").length;
     const awaitingProcessing = orders.filter(
-      (o) => o.status === "Pending" || o.status === "Processing"
+      (o: Order) => o.status === "Pending" || o.status === "Processing"
     ).length;
 
     return {
