@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { withErrorHandling } from "@/lib/utils/result";
-import { Order } from "@prisma/client";
+import type { Order } from "@prisma/client";
 
 export async function getDashboardStats() {
   return withErrorHandling(async () => {
