@@ -3,11 +3,22 @@
 import { prisma } from "@/lib/db/prisma";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { withErrorHandling } from "@/lib/utils/result";
-import { Prisma } from "@prisma/client"; 
 
-type OrderStatusOnly = Prisma.OrderGetPayload<{
-  select: { status: true };
-}>;
+type OrderStatusOnly = {
+  status: string;
+};
+
+type Product = {
+  id: string;
+  name: string;
+  type: string;
+  bank: string;
+  balance: number;
+  price: number;
+  region: string;
+  status: string;
+  description: string | null;
+};
 
 export async function getDashboardStats() {
   return withErrorHandling(async () => {
@@ -24,7 +35,7 @@ export async function getDashboardStats() {
       }),
     ]);
 
-  
+
     const typedOrders: OrderStatusOnly[] = orders;
 
     const availableFunds = wallet?.balance || 0;
@@ -53,7 +64,7 @@ export async function getBankLogs() {
       orderBy: { createdAt: "desc" },
     });
 
-    return products.map((product) => ({
+    return products.map((product: Product) => ({
       id: product.id,
       product: product.name,
       type: product.type,
