@@ -4,6 +4,11 @@ import { prisma } from "@/lib/db/prisma";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { withErrorHandling } from "@/lib/utils/result";
 
+type CartItemWithProduct = {
+  product: { price: number };
+  quantity: number;
+};
+
 export async function getOrders() {
   return withErrorHandling(async () => {
     const userId = await requireAuth();
@@ -64,7 +69,7 @@ export async function createOrder(cartItemIds: string[]) {
 
     // Calculate total
     const total = cartItems.reduce(
-      (sum: number, item) => sum + item.product.price * item.quantity,
+      (sum: number, item: CartItemWithProduct) => sum + item.product.price * item.quantity,
       0
     );
 
