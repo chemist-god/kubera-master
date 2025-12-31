@@ -15,7 +15,7 @@ export function CartItemsList({ cartItems }: { cartItems: CartItem[] }) {
     try {
       const result = await removeFromCart(itemId);
       if (result.success) {
-        setItems(items.filter((item) => item.id !== itemId));
+        setItems(items.filter((item: CartItem) => item.id !== itemId));
       }
     } catch (error) {
       console.error("Error removing item:", error);
@@ -24,13 +24,13 @@ export function CartItemsList({ cartItems }: { cartItems: CartItem[] }) {
     }
   }
 
-  const total = items.reduce((sum, item) => {
+  const total = items.reduce((sum: number, item: CartItem) => {
     return sum + item.product.price * item.quantity;
   }, 0);
 
   return (
     <div className="w-full space-y-4">
-      {items.map((item) => (
+      {items.map((item: CartItem) => (
         <Card key={item.id} className="p-4">
           <CardContent className="flex items-center justify-between">
             <div className="flex-1">

@@ -5,7 +5,7 @@ import { Ticket } from "@/lib/api/types";
 export function TicketsList({ tickets }: { tickets: Ticket[] }) {
   return (
     <div className="w-full space-y-4">
-      {tickets.map((ticket) => (
+      {tickets.map((ticket: Ticket) => (
         <Card key={ticket.id} className="p-6">
           <CardContent className="space-y-4">
             <div className="flex justify-between items-start">

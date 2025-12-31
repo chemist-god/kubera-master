@@ -1,11 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Order } from "@/lib/api/types";
+import { Order, OrderItem } from "@/lib/api/types";
 
 export function OrdersList({ orders }: { orders: Order[] }) {
   return (
     <div className="w-full space-y-4">
-      {orders.map((order) => (
+      {orders.map((order: Order) => (
         <Card key={order.id} className="p-6">
           <CardContent className="space-y-4">
             <div className="flex justify-between items-start">
@@ -18,7 +18,7 @@ export function OrdersList({ orders }: { orders: Order[] }) {
               <Badge variant="secondary">{order.status}</Badge>
             </div>
             <div className="space-y-2">
-              {order.items.map((item) => (
+              {order.items.map((item: OrderItem) => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span>
                     {item.product.name} × {item.quantity}
