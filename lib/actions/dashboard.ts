@@ -3,10 +3,11 @@
 import { prisma } from "@/lib/db/prisma";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { withErrorHandling } from "@/lib/utils/result";
-import { Order } from "@prisma/client"; //  Use Prisma-generated type
+import { Prisma } from "@prisma/client"; 
 
-// Helper type: shape of order when only `status` is selected
-type OrderStatusOnly = Pick<Order, "status">;
+type OrderStatusOnly = Prisma.OrderGetPayload<{
+  select: { status: true };
+}>;
 
 export async function getDashboardStats() {
   return withErrorHandling(async () => {
@@ -23,8 +24,8 @@ export async function getDashboardStats() {
       }),
     ]);
 
-    //  Explicitly narrow type for safety & inference
-    const typedOrders = orders as OrderStatusOnly[];
+  
+    const typedOrders: OrderStatusOnly[] = orders;
 
     const availableFunds = wallet?.balance || 0;
     const totalCompleted = typedOrders.filter(
@@ -52,7 +53,6 @@ export async function getBankLogs() {
       orderBy: { createdAt: "desc" },
     });
 
-    //  Optional: add type annotation for clarity (not required, but helpful)
     return products.map((product) => ({
       id: product.id,
       product: product.name,
