@@ -4,8 +4,6 @@ import { prisma } from "@/lib/db/prisma";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { withErrorHandling } from "@/lib/utils/result";
 
-type Order = Awaited<ReturnType<typeof prisma.order.findMany>>[number];
-
 export async function getDashboardStats() {
   return withErrorHandling(async () => {
     const userId = await requireAuth();
@@ -20,9 +18,9 @@ export async function getDashboardStats() {
     ]);
 
     const availableFunds = wallet?.balance || 0;
-    const totalCompleted = orders.filter((o: Order) => o.status === "Completed").length;
+    const totalCompleted = orders.filter(({ status }) => status === "Completed").length;
     const awaitingProcessing = orders.filter(
-      (o: Order) => o.status === "Pending" || o.status === "Processing"
+      ({ status }) => status === "Pending" || status === "Processing"
     ).length;
 
     return {
