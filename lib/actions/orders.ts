@@ -5,6 +5,7 @@ import { requireAuth } from "@/lib/auth/require-auth";
 import { withErrorHandling } from "@/lib/utils/result";
 
 type CartItemWithProduct = {
+  productId: string;
   product: { price: number };
   quantity: number;
 };
@@ -80,7 +81,7 @@ export async function createOrder(cartItemIds: string[]) {
         total,
         status: "Pending",
         items: {
-          create: cartItems.map((item) => ({
+          create: cartItems.map((item: CartItemWithProduct) => ({
             productId: item.productId,
             quantity: item.quantity,
             price: item.product.price,
