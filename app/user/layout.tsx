@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import "../globals.css";
 import { UserNav } from "@/components/nav/user-nav";
 import { ROUTES } from "@/lib/utils/constants";

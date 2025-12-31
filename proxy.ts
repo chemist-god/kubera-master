@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { ROUTES, SESSION_CONFIG } from "@/lib/utils/constants";
 
-export function middleware(request: NextRequest) {
+// Next.js expects a `proxy` export (or default) to run on every request.
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionCookie = request.cookies.get(SESSION_CONFIG.COOKIE_NAME);
 
@@ -42,4 +43,3 @@ export const config = {
     "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
-
