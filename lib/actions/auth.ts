@@ -8,10 +8,10 @@ import {
   validateEmail,
   validatePassword,
   validateUsername,
-  validateCaptcha,
   sanitizeInput,
   sanitizeEmail,
 } from "@/lib/utils/validation";
+import { validateCaptchaAnswer } from "@/lib/actions/captcha";
 
 // Types
 export interface RegisterData {
@@ -20,7 +20,6 @@ export interface RegisterData {
   password: string;
   confirmPassword: string;
   captchaAnswer: string;
-  captchaExpected: number;
   agreeToTerms: boolean;
 }
 
@@ -28,7 +27,6 @@ export interface LoginData {
   username: string;
   password: string;
   captchaAnswer: string;
-  captchaExpected: number;
 }
 
 export type AuthResult<T = unknown> = ActionResult<T>;
@@ -70,9 +68,9 @@ export async function register(
     }
 
     // Validate captcha
-    const captchaValidation = validateCaptcha(data.captchaAnswer, data.captchaExpected);
-    if (!captchaValidation.valid) {
-      throw new Error(captchaValidation.error);
+    const captchaResult = await validateCaptchaAnswer(data.captchaAnswer);
+    if (!captchaResult.success) {
+      throw new Error(captchaResult.error || "CAPTCHA validation failed");
     }
 
     // Check terms agreement
@@ -135,9 +133,9 @@ export async function login(
     }
 
     // Validate captcha
-    const captchaValidation = validateCaptcha(data.captchaAnswer, data.captchaExpected);
-    if (!captchaValidation.valid) {
-      throw new Error(captchaValidation.error);
+    const captchaResult = await validateCaptchaAnswer(data.captchaAnswer);
+    if (!captchaResult.success) {
+      throw new Error(captchaResult.error || "CAPTCHA validation failed");
     }
 
     // Find user by username
