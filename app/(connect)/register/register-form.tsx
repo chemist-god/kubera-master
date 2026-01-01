@@ -5,10 +5,8 @@ import { Button } from "@/components/ui/button";
 import { register } from "@/lib/actions/auth";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CAPTCHA_CONFIG, ROUTES } from "@/lib/utils/constants";
-
-const CAPTCHA_QUESTION = CAPTCHA_CONFIG.REGISTER.question;
-const CAPTCHA_ANSWER = CAPTCHA_CONFIG.REGISTER.answer;
+import { ROUTES } from "@/lib/utils/constants";
+import { CaptchaInput } from "@/components/captcha/captcha-input";
 
 export function RegisterForm() {
     const router = useRouter();
@@ -35,7 +33,6 @@ export function RegisterForm() {
                 password: formData.password,
                 confirmPassword: formData.confirmPassword,
                 captchaAnswer: formData.captchaAnswer,
-                captchaExpected: CAPTCHA_ANSWER,
                 agreeToTerms: formData.agreeToTerms,
             });
 
@@ -103,19 +100,12 @@ export function RegisterForm() {
                 disabled={isLoading}
                 minLength={8}
             />
-            <div className="flex items-center gap-2">
-                <Input
-                    className="w-24"
-                    placeholder={`${CAPTCHA_QUESTION} = ?`}
-                    required
-                    value={formData.captchaAnswer}
-                    onChange={(e) =>
-                        setFormData({ ...formData, captchaAnswer: e.target.value })
-                    }
-                    disabled={isLoading}
-                />
-                <span className="text-xs text-muted-foreground">What's the answer?</span>
-            </div>
+            <CaptchaInput
+                value={formData.captchaAnswer}
+                onChange={(value) => setFormData({ ...formData, captchaAnswer: value })}
+                disabled={isLoading}
+                error={error && (error.toLowerCase().includes("captcha") || error.toLowerCase().includes("expired")) ? error : null}
+            />
             <div className="flex items-center gap-2">
                 <input
                     type="checkbox"
