@@ -1,14 +1,12 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { getDashboardStats, getBankLogs } from "@/lib/actions/dashboard";
+import { getDashboardStats } from "@/lib/actions/dashboard";
 import { getCurrentUser } from "@/lib/actions/user";
-import { AddToCartButton } from "@/app/shop/add-to-cart-button";
-import { BankLog } from "@/lib/api/types";
+import { BankLogsTable } from "./bank-logs-table";
+import { getBankLogs } from "@/lib/data/bank-logs";
 
 export default async function DashboardPage() {
-  const [statsResult, bankLogsResult, userResult] = await Promise.all([
+  const [statsResult, userResult] = await Promise.all([
     getDashboardStats(),
-    getBankLogs(),
     getCurrentUser(),
   ]);
 
@@ -17,8 +15,10 @@ export default async function DashboardPage() {
     totalCompleted: 0,
     awaitingProcessing: 0,
   };
-  const bankLogs: BankLog[] = bankLogsResult.success && bankLogsResult.data ? bankLogsResult.data : [];
   const username = userResult.success && userResult.data ? userResult.data.username : "User";
+
+  // Get initial bank logs data for SSR
+  const initialBankLogs = getBankLogs();
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground">
@@ -52,57 +52,23 @@ export default async function DashboardPage() {
           </Card>
         </div>
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Available Bank Logs</h2>
-          <div className="overflow-x-auto rounded-xl shadow bg-card">
-            <table className="min-w-full divide-y divide-border">
-              <thead className="bg-stone-950">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">Product</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">Description</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">Bank</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">Balance</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">Price</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">Region</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">Status</th>
-                  <th className="px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {bankLogs.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
-                      No bank logs available
-                    </td>
-                  </tr>
-                ) : (
-                  bankLogs.map((log: BankLog) => (
-                    <tr key={log.id} className="hover:bg-stone-900/60 transition">
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="secondary" className="rounded-full px-2 py-1 text-xs font-semibold bg-primary/10 text-primary">CH</Badge>
-                          <div>
-                            <div className="font-semibold text-sm">{log.product}</div>
-                            <div className="text-xs text-muted-foreground">{log.type}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 max-w-xs text-sm text-muted-foreground">{log.description}</td>
-                      <td className="px-4 py-3 text-sm">{log.bank}</td>
-                      <td className="px-4 py-3 text-primary font-bold">${log.balance.toLocaleString()}</td>
-                      <td className="px-4 py-3 text-foreground font-semibold">${log.price}</td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground">{log.region}</td>
-                      <td className="px-4 py-3">
-                        <Badge variant="secondary" className="text-xs font-semibold px-2 py-1 bg-green-700/20 text-green-400">{log.status}</Badge>
-                      </td>
-                      <td className="px-4 py-3">
-                        <AddToCartButton productId={log.id} />
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+            <span>Available Bank Logs</span>
+            <svg
+              className="w-5 h-5 text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+              />
+            </svg>
+          </h2>
+          <BankLogsTable initialData={initialBankLogs} />
         </section>
       </div>
     </main>
