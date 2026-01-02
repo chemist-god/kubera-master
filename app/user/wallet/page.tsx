@@ -1,56 +1,79 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getWallet } from "@/lib/actions/wallet";
 import { GenerateWalletButton } from "./generate-wallet-button";
+import { WalletAddressDisplay } from "./wallet-address-display";
+import { HowToTopUp } from "./how-to-top-up";
 
 export default async function WalletPage() {
   const result = await getWallet();
   const wallet = result.success && result.data ? result.data : null;
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground">
-      <div className="w-full max-w-xl p-8 flex flex-col items-center">
-        <h1 className="text-3xl font-bold mb-2">My Wallet</h1>
-        <p className="mb-8 text-muted-foreground">Manage your account balance and top up funds</p>
-        <Card className="p-10 flex flex-col items-center w-full mb-6">
-          <CardContent className="flex flex-col items-center">
-            <svg width="48" height="48" fill="none" className="mb-4 text-primary"><rect width="48" height="48" rx="12" fill="var(--card)"/><circle cx="24" cy="24" r="12" stroke="#0ea5e9" strokeWidth="2"/></svg>
+    <main className="min-h-screen bg-background text-foreground py-8">
+      <div className="container mx-auto max-w-4xl px-4">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold mb-2">My Wallet</h1>
+          <p className="text-muted-foreground">Manage your account balance and top up funds</p>
+        </div>
+
+        {/* Current Balance Card */}
+        <Card className="mb-6">
+          <CardContent className="p-10 flex flex-col items-center">
+            <div className="mb-4">
+              <svg width="48" height="48" fill="none" className="text-primary">
+                <rect width="48" height="48" rx="12" fill="var(--card)" />
+                <circle cx="24" cy="24" r="12" stroke="currentColor" strokeWidth="2" />
+              </svg>
+            </div>
             <span className="text-lg mb-2">Current Balance</span>
-            <span className="text-3xl font-bold text-primary mb-4">
+            <span className="text-3xl font-bold text-primary">
               ${wallet ? wallet.balance.toFixed(2) : "0.00"}
             </span>
           </CardContent>
         </Card>
-        <Card className="w-full p-0 overflow-hidden border-none shadow-xl bg-gradient-to-br from-stone-950 to-stone-900">
-          <div className="flex flex-col md:flex-row items-center gap-0 md:gap-6 p-6">
-            <div className="flex-1 flex flex-col gap-2">
-              {wallet?.address ? (
-                <>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="secondary" className="text-xs font-semibold bg-green-500/10 text-green-400 px-2 py-1">Wallet Active</Badge>
+
+        {/* Top Up Section */}
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            {wallet?.address ? (
+              <>
+                <div className="flex items-center gap-2 mb-4">
+                  <Badge variant="secondary" className="text-xs font-semibold bg-green-500/10 text-green-400 px-2 py-1">
+                    Wallet Active
+                  </Badge>
+                </div>
+                <WalletAddressDisplay address={wallet.address} />
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 mb-4">
+                  <Badge variant="secondary" className="text-xs font-semibold bg-yellow-500/10 text-yellow-400 px-2 py-1">
+                    Wallet Setup Required
+                  </Badge>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-1 text-foreground">Top Up Your Balance</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Generate a wallet address to start receiving payments.
+                    </p>
+                    <GenerateWalletButton />
                   </div>
-                  <h3 className="text-lg font-semibold mb-1 text-foreground">Wallet Address</h3>
-                  <div className="text-xs text-muted-foreground mb-3 font-mono break-all">
-                    {wallet.address}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="secondary" className="text-xs font-semibold bg-yellow-500/10 text-yellow-400 px-2 py-1">Wallet Setup Required</Badge>
-                  </div>
-                  <h3 className="text-lg font-semibold mb-1 text-foreground">Top Up Your Balance</h3>
-                  <div className="text-xs text-muted-foreground mb-3">Generate a wallet address to start receiving payments.</div>
-                  <GenerateWalletButton />
-                </>
-              )}
-            </div>
-            <div className="hidden md:flex items-center justify-center">
-              <svg width="64" height="64" fill="none" className="text-primary"><rect width="64" height="64" rx="16" fill="var(--card)"/><circle cx="32" cy="32" r="18" stroke="#0ea5e9" strokeWidth="3"/></svg>
-            </div>
-          </div>
+                </div>
+              </>
+            )}
+          </CardContent>
         </Card>
+
+        {/* How to Top Up Instructions */}
+        {wallet?.address && (
+          <Card>
+            <CardContent className="p-6">
+              <HowToTopUp />
+            </CardContent>
+          </Card>
+        )}
       </div>
     </main>
   );
