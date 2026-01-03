@@ -41,7 +41,7 @@ export async function findProductByBankLogId(
  * @param bankLogId - The bank log ID (e.g., "bl-1")
  * @returns BankLog data if found, null otherwise
  */
-export function getBankLogById(bankLogId: string): BankLog | null {
+export async function getBankLogById(bankLogId: string): Promise<BankLog | null> {
   try {
     const bankLogs = getBankLogs();
     const bankLog = bankLogs.find((log) => log.id === bankLogId);
@@ -121,7 +121,7 @@ export async function getOrCreateProduct(
   }
 
   // Step 4: Product doesn't exist, get bank log data and create product
-  const bankLog = getBankLogById(bankLogId);
+  const bankLog = await getBankLogById(bankLogId);
   if (!bankLog) {
     throw new Error(`Bank log with ID ${bankLogId} not found`);
   }
