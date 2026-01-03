@@ -5,20 +5,50 @@ import { Button } from "@/components/ui/button";
 import { CartItem } from "@/lib/api/types";
 import { removeFromCart } from "@/lib/actions/cart";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Trash2 } from "lucide-react";
 
 export function CartItemsList({ cartItems }: { cartItems: CartItem[] }) {
   const [items, setItems] = useState(cartItems);
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
+  const { toast } = useToast();
 
   async function handleRemove(itemId: string) {
     setIsRemoving(itemId);
     try {
       const result = await removeFromCart(itemId);
       if (result.success) {
+        // Find the item being removed to show its name in toast
+        const removedItem = items.find((item: CartItem) => item.id === itemId);
+        const itemName = removedItem?.product.name || "Item";
+        
+        // Remove from local state
         setItems(items.filter((item: CartItem) => item.id !== itemId));
+        
+        // Show success toast
+        toast({
+          variant: "default",
+          title: "Removed from Cart 🗑️",
+          description: `${itemName} has been removed from your cart.`,
+          duration: 3000,
+        });
+      } else {
+        // Show error toast
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.error || "Failed to remove item from cart.",
+          duration: 4000,
+        });
       }
     } catch (error) {
       console.error("Error removing item:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred while removing the item.",
+        duration: 4000,
+      });
     } finally {
       setIsRemoving(null);
     }
@@ -47,7 +77,9 @@ export function CartItemsList({ cartItems }: { cartItems: CartItem[] }) {
               disabled={isRemoving === item.id}
               variant="outline"
               size="sm"
+              className="flex items-center gap-2"
             >
+              <Trash2 className="w-4 h-4" />
               {isRemoving === item.id ? "Removing..." : "Remove"}
             </Button>
           </CardContent>
