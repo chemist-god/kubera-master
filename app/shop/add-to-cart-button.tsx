@@ -1,11 +1,12 @@
 "use client";
 
 import { ActionButton } from "@/components/common/action-button";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Check } from "lucide-react";
 import { addToCart } from "@/lib/actions/cart";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { setCartItemTimer } from "@/lib/utils/cart-timers";
+import { Button } from "@/components/ui/button";
 
 interface CartItemData {
   id: string;
@@ -15,21 +16,27 @@ interface CartItemData {
   };
 }
 
-export function AddToCartButton({ productId }: { productId: string }) {
+interface AddToCartButtonProps {
+  productId: string;
+  isInCart?: boolean;
+  onAddedToCart?: () => void;
+}
+
+export function AddToCartButton({ productId, isInCart = false, onAddedToCart }: AddToCartButtonProps) {
   const { toast } = useToast();
   const router = useRouter();
 
   const handleAddToCart = async () => {
     const result = await addToCart(productId, 1);
-    
+
     if (result.success && result.data) {
       const cartItem = result.data as CartItemData;
       const productName = cartItem.product?.name || "Item";
-      
+
       // Check if item was updated (already in cart) or newly added
       // If quantity > 1, it means it was already in cart and quantity was incremented
       const isUpdate = cartItem.quantity > 1;
-      
+
       if (isUpdate) {
         // Item already in cart, quantity updated - don't redirect
         toast({
@@ -42,14 +49,19 @@ export function AddToCartButton({ productId }: { productId: string }) {
         // New item added - set timer for this item and redirect
         // Set timer for this new cart item (starts countdown)
         setCartItemTimer(cartItem.id);
-        
+
+        // Notify parent component that item was added
+        if (onAddedToCart) {
+          onAddedToCart();
+        }
+
         toast({
           variant: "success",
           title: "Product Added to Cart! 🎉",
           description: "Redirecting to cart...",
           duration: 2000,
         });
-        
+
         // Redirect to cart page after a short delay
         setTimeout(() => {
           router.push("/user/cart");
@@ -58,7 +70,7 @@ export function AddToCartButton({ productId }: { productId: string }) {
     } else {
       // Handle different error scenarios
       const errorMessage = result.error || "Failed to add item to cart";
-      
+
       if (errorMessage.includes("sold") || errorMessage.includes("already been sold")) {
         toast({
           variant: "destructive",
@@ -67,7 +79,7 @@ export function AddToCartButton({ productId }: { productId: string }) {
           duration: 4000,
         });
       } else if (
-        errorMessage.includes("being processed") || 
+        errorMessage.includes("being processed") ||
         errorMessage.includes("Pending") ||
         errorMessage.includes("currently being processed")
       ) {
@@ -93,9 +105,22 @@ export function AddToCartButton({ productId }: { productId: string }) {
         });
       }
     }
-    
+
     return result;
   };
+
+  // If item is already in cart, show "Added to Cart" state
+  if (isInCart) {
+    return (
+      <Button
+        disabled
+        className="mt-2 bg-green-600/20 hover:bg-green-600/20 text-green-400 border border-green-600/30 flex items-center gap-2 px-4 py-2 rounded-full cursor-not-allowed"
+      >
+        <Check className="w-4 h-4" />
+        Added to Cart
+      </Button>
+    );
+  }
 
   return (
     <ActionButton
