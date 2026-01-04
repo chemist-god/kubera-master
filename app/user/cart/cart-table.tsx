@@ -4,16 +4,24 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/lib/api/types";
 import { removeFromCart, updateCartItem } from "@/lib/actions/cart";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Plus, Minus, Clock } from "lucide-react";
+import { Trash2, Plus, Minus } from "lucide-react";
+import { CountdownTimer } from "./countdown-timer";
 
 interface CartTableProps {
   cartItems: CartItem[];
   onItemsChange: (items: CartItem[]) => void;
+  onCartExpired: () => void;
+  cartStartTime: number | null;
 }
 
-export function CartTable({ cartItems, onItemsChange }: CartTableProps) {
+export function CartTable({
+  cartItems,
+  onItemsChange,
+  onCartExpired,
+  cartStartTime,
+}: CartTableProps) {
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
   const { toast } = useToast();
@@ -279,10 +287,11 @@ export function CartTable({ cartItems, onItemsChange }: CartTableProps) {
 
                   {/* Expires In Column */}
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      <span>24:00</span>
-                    </div>
+                    <CountdownTimer
+                      cartStartTime={cartStartTime}
+                      durationMinutes={10}
+                      onExpired={onCartExpired}
+                    />
                   </td>
 
                   {/* Action Column */}
