@@ -1,13 +1,15 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { getDashboardStats } from "@/lib/actions/dashboard";
 import { getCurrentUser } from "@/lib/actions/user";
+import { getCart } from "@/lib/actions/cart";
 import { BankLogsTable } from "./bank-logs-table";
 import { getBankLogs } from "@/lib/data/bank-logs";
 
 export default async function DashboardPage() {
-  const [statsResult, userResult] = await Promise.all([
+  const [statsResult, userResult, cartResult] = await Promise.all([
     getDashboardStats(),
     getCurrentUser(),
+    getCart(),
   ]);
 
   const stats = statsResult.success && statsResult.data ? statsResult.data : {
@@ -16,6 +18,11 @@ export default async function DashboardPage() {
     awaitingProcessing: 0,
   };
   const username = userResult.success && userResult.data ? userResult.data.username : "User";
+
+  // Get cart items to check which products are already in cart
+  const cartItems = cartResult.success && cartResult.data ? cartResult.data : [];
+  // Create a Set of product IDs that are in the cart for quick lookup
+  const cartProductIds = new Set(cartItems.map((item) => item.productId));
 
   // Get initial bank logs data for SSR
   const initialBankLogs = getBankLogs();
@@ -68,7 +75,7 @@ export default async function DashboardPage() {
               />
             </svg>
           </h2>
-          <BankLogsTable initialData={initialBankLogs} />
+          <BankLogsTable initialData={initialBankLogs} cartProductIds={cartProductIds} />
         </section>
       </div>
     </main>
