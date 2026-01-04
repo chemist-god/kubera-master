@@ -5,6 +5,7 @@ import { ShoppingCart } from "lucide-react";
 import { addToCart } from "@/lib/actions/cart";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { setCartItemTimer } from "@/lib/utils/cart-timers";
 
 interface CartItemData {
   id: string;
@@ -38,7 +39,10 @@ export function AddToCartButton({ productId }: { productId: string }) {
           duration: 3000,
         });
       } else {
-        // New item added - show redirecting message and redirect
+        // New item added - set timer for this item and redirect
+        // Set timer for this new cart item (starts countdown)
+        setCartItemTimer(cartItem.id);
+        
         toast({
           variant: "success",
           title: "Product Added to Cart! 🎉",
