@@ -8,19 +8,18 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, Plus, Minus } from "lucide-react";
 import { CountdownTimer } from "./countdown-timer";
+import { clearCartItemTimer } from "@/lib/utils/cart-timers";
 
 interface CartTableProps {
   cartItems: CartItem[];
   onItemsChange: (items: CartItem[]) => void;
-  onCartExpired: () => void;
-  cartStartTime: number | null;
+  onItemExpired: (itemId: string) => void;
 }
 
 export function CartTable({
   cartItems,
   onItemsChange,
-  onCartExpired,
-  cartStartTime,
+  onItemExpired,
 }: CartTableProps) {
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
@@ -113,6 +112,9 @@ export function CartTable({
         // Find the item being removed to show its name in toast
         const removedItem = cartItems.find((item: CartItem) => item.id === itemId);
         const itemName = removedItem?.product.name || "Item";
+        
+        // Clear the item's timer
+        clearCartItemTimer(itemId);
         
         // Remove from local state
         const updatedItems = cartItems.filter((item: CartItem) => item.id !== itemId);
@@ -288,9 +290,13 @@ export function CartTable({
                   {/* Expires In Column */}
                   <td className="px-4 py-3">
                     <CountdownTimer
-                      cartStartTime={cartStartTime}
-                      durationMinutes={10}
-                      onExpired={onCartExpired}
+                      cartItemId={item.id}
+                      onExpired={() => {
+                        // Clear timer from localStorage
+                        clearCartItemTimer(item.id);
+                        // Trigger item expiration handler
+                        onItemExpired(item.id);
+                      }}
                     />
                   </td>
 
