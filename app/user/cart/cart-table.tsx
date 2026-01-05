@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Trash2, Plus, Minus } from "lucide-react";
 import { CountdownTimer } from "./countdown-timer";
 import { clearCartItemTimer } from "@/lib/utils/cart-timers";
+import Image from "next/image";
+import { getBankLogo } from "@/lib/utils/bank-logos";
 
 interface CartTableProps {
   cartItems: CartItem[];
@@ -217,12 +219,27 @@ export function CartTable({
                   {/* Product Column */}
                   <td className="px-4 py-3">
                     <div className="flex items-start gap-3">
-                      <Badge
-                        variant="secondary"
-                        className="rounded-full px-2 py-1 text-xs font-semibold bg-primary/10 text-primary shrink-0"
-                      >
-                        {getBankInitials(item.product.bank)}
-                      </Badge>
+                      {(() => {
+                        const logoPath = getBankLogo(item.product.bank);
+                        return logoPath ? (
+                          <div className="w-12 h-12 flex-shrink-0 rounded-full overflow-hidden bg-white border border-border/50 flex items-center justify-center relative">
+                            <Image
+                              src={logoPath}
+                              alt={`${item.product.bank} logo`}
+                              width={48}
+                              height={48}
+                              className="absolute inset-0 w-full h-full object-contain scale-125"
+                            />
+                          </div>
+                        ) : (
+                          <Badge
+                            variant="secondary"
+                            className="rounded-full px-2 py-1 text-xs font-semibold bg-primary/10 text-primary shrink-0"
+                          >
+                            {getBankInitials(item.product.bank)}
+                          </Badge>
+                        );
+                      })()}
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-sm mb-1">
                           {item.product.name}
