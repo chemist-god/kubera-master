@@ -1093,9 +1093,31 @@ export const BANK_LOGS_DATA: Omit<BankLog, "id">[] = [
  * This function adds IDs to the bank logs data
  */
 export function getBankLogs(): BankLog[] {
-  return BANK_LOGS_DATA.map((log, index) => ({
-    ...log,
-    id: `bl-${index + 1}`,
-  }));
+  return BANK_LOGS_DATA.map((log, index) => {
+    const rawRegion = (log.region || "").toLowerCase();
+    // Normalize to one of: 'canada', 'uk', 'us'
+    let regionCategory: "canada" | "uk" | "us" = "us";
+    if (rawRegion.includes("canada") || rawRegion.startsWith("ca ") || rawRegion === "ca") {
+      regionCategory = "canada";
+    } else if (
+      rawRegion.includes("united kingdom") ||
+      rawRegion.includes("uk") ||
+      rawRegion.includes("united kingdom")
+    ) {
+      regionCategory = "uk";
+    } else {
+      regionCategory = "us";
+    }
+
+    // Ensure price is at least $200
+    const price = Math.max(typeof log.price === "number" ? log.price : 0, 200);
+
+    return {
+      ...log,
+      id: `bl-${index + 1}`,
+      price,
+      region: regionCategory,
+    } as BankLog;
+  });
 }
 
