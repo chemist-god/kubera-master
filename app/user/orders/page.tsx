@@ -18,7 +18,7 @@ export default async function OrdersPage() {
             <CardContent className="flex flex-col items-center">
               <svg width="48" height="48" fill="none" className="mb-4 text-primary"><rect width="48" height="48" rx="12" fill="var(--card)"/><path d="M16 24h16M16 28h16M16 20h16" stroke="#0ea5e9" strokeWidth="2" strokeLinecap="round"/></svg>
               <span className="text-xl font-semibold mb-2">No orders yet</span>
-              <span className="mb-4 text-muted-foreground">You haven't placed any orders yet. Start shopping!</span>
+              <span className="mb-4 text-muted-foreground">{"You haven't placed any orders yet. Start shopping!"}</span>
               <Button asChild className="bg-primary hover:bg-primary/90 text-white flex items-center gap-2 px-4 py-2 rounded-full shadow transition-transform duration-150 active:scale-95">
                 <a href="/shop">
                   <ShoppingCart className="w-4 h-4" />
