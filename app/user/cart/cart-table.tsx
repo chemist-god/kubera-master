@@ -176,7 +176,7 @@ export function CartTable({
   return (
     <div className="overflow-x-auto rounded-xl shadow bg-card">
       <table className="min-w-full divide-y divide-border">
-        <thead className="bg-stone-950">
+        <thead className="bg-muted/50">
           <tr>
             <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">
               Product
@@ -215,7 +215,7 @@ export function CartTable({
               const currency = getCurrency(item.product.region);
 
               return (
-                <tr key={item.id} className="hover:bg-stone-900/60 transition">
+                <tr key={item.id} className="hover:bg-muted/50 transition">
                   {/* Product Column */}
                   <td className="px-4 py-3">
                     <div className="flex items-start gap-3">
@@ -262,7 +262,7 @@ export function CartTable({
 
                   {/* Balance Column */}
                   <td className="px-4 py-3">
-                    <div className="text-sm text-green-400 font-semibold">
+                    <div className="text-sm text-emerald-700 dark:text-emerald-300 font-semibold">
                       {currency} {item.product.balance.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
