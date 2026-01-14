@@ -28,73 +28,50 @@ export default async function CartPage() {
   const hasInsufficientBalance = stats.availableFunds < total;
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <div className="w-full max-w-7xl mx-auto p-8">
+    <main className="min-h-screen bg-background text-foreground py-10 px-4 md:px-8">
+      <div className="mx-auto w-full max-w-7xl space-y-8">
         {/* Header Section */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <ShoppingCart className="w-6 h-6 text-primary" />
-            <div>
-              <h1 className="text-3xl font-bold">Shopping Cart</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Review your items before checkout
-              </p>
-            </div>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              Shopping Cart
+            </h1>
+            <p className="text-muted-foreground text-lg font-light max-w-lg">
+              Review your items and proceed to secure checkout.
+            </p>
           </div>
 
           {/* Balance Display */}
-          <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span className="font-semibold">
-              Balance Available: ${stats.availableFunds.toFixed(2)}
-            </span>
+          <div className="flex items-center gap-3 p-4 rounded-2xl bg-primary/5 border border-primary/10 shadow-sm backdrop-blur-sm">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" /><path d="M3 5v14a2 2 0 0 0 2 2h16v-5" /><path d="M18 12a2 2 0 0 0 0 4h4v-4Z" /></svg>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Available Balance</span>
+              <span className="text-xl font-bold text-primary font-mono">${stats.availableFunds.toFixed(2)}</span>
+            </div>
           </div>
         </div>
 
         {cartItems.length === 0 ? (
-          <Card className="p-12 flex flex-col items-center w-full">
-            <CardContent className="flex flex-col items-center">
-              <svg
-                width="48"
-                height="48"
-                fill="none"
-                className="mb-4 text-primary"
-              >
-                <rect width="48" height="48" rx="12" fill="var(--card)" />
-                <path
-                  d="M16 24h16M16 28h16M16 20h16"
-                  stroke="#0ea5e9"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <span className="text-xl font-semibold mb-2">Your cart is empty</span>
-              <span className="mb-4 text-muted-foreground">
-                Start shopping to add items to your cart
-              </span>
-              <Button
-                asChild
-                className="bg-primary hover:bg-primary/90 text-white flex items-center gap-2 px-4 py-2 rounded-full shadow transition-transform duration-150 active:scale-95"
-              >
-                <a href="/user/dashboard">
-                  <ShoppingCart className="w-4 h-4" />
-                  Continue Shopping
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-border/50 rounded-[2.5rem] bg-muted/5 animate-in fade-in duration-500">
+            <div className="w-24 h-24 rounded-full bg-primary/5 flex items-center justify-center mb-6 ring-8 ring-primary/5">
+              <ShoppingCart className="w-10 h-10 text-primary/50" />
+            </div>
+            <h3 className="text-2xl font-bold tracking-tight mb-2">Your cart is empty</h3>
+            <p className="text-muted-foreground text-lg mb-8 max-w-sm text-center font-light">
+              Looks like you haven't added any items yet. Explore our marketplace to find what you need.
+            </p>
+            <Button
+              asChild
+              size="lg"
+              className="rounded-full h-12 px-8 font-semibold shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 text-primary-foreground transition-all hover:scale-105"
+            >
+              <a href="/user/dashboard">
+                Start Shopping
+              </a>
+            </Button>
+          </div>
         ) : (
           <CartPageClient
             initialCartItems={cartItems}
