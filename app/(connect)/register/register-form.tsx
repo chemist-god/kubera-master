@@ -67,6 +67,7 @@ export function RegisterForm() {
                 disabled={isLoading}
                 minLength={3}
                 maxLength={20}
+                className="h-11 bg-muted/30 border-white/10 focus:bg-background focus:border-primary/50 transition-all rounded-xl"
             />
             <Input
                 placeholder="Email"
@@ -77,6 +78,7 @@ export function RegisterForm() {
                     setFormData({ ...formData, email: e.target.value })
                 }
                 disabled={isLoading}
+                className="h-11 bg-muted/30 border-white/10 focus:bg-background focus:border-primary/50 transition-all rounded-xl"
             />
             <Input
                 placeholder="Password"
@@ -88,6 +90,7 @@ export function RegisterForm() {
                 }
                 disabled={isLoading}
                 minLength={8}
+                className="h-11 bg-muted/30 border-white/10 focus:bg-background focus:border-primary/50 transition-all rounded-xl"
             />
             <Input
                 placeholder="Confirm Password"
@@ -99,6 +102,7 @@ export function RegisterForm() {
                 }
                 disabled={isLoading}
                 minLength={8}
+                className="h-11 bg-muted/30 border-white/10 focus:bg-background focus:border-primary/50 transition-all rounded-xl"
             />
             <CaptchaInput
                 value={formData.captchaAnswer}
@@ -125,7 +129,7 @@ export function RegisterForm() {
                     </a>
                 </label>
             </div>
-            <Button className="w-full mt-2" type="submit" disabled={isLoading}>
+            <Button className="w-full mt-4 h-11 text-base font-medium rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all" type="submit" disabled={isLoading}>
                 {isLoading ? "Creating account..." : "Sign Up"}
             </Button>
         </form>
