@@ -81,7 +81,9 @@ export function BankLogsTable({ initialData = [], cartProductIds = new Set() }: 
         const result = await response.json();
         const cartItems = result.data || result;
         if (Array.isArray(cartItems)) {
-          const productIds = new Set(cartItems.map((item: any) => item.productId));
+          const productIds = new Set(
+            (cartItems as Array<{ productId: string }>).map((item) => item.productId)
+          );
           setInCartProducts(productIds);
         }
       }
@@ -328,7 +330,7 @@ export function BankLogsTable({ initialData = [], cartProductIds = new Set() }: 
       {/* Table Section */}
       <div className="overflow-x-auto rounded-xl shadow bg-card">
         <table className="min-w-full divide-y divide-border">
-          <thead className="bg-stone-950">
+          <thead className="bg-muted/50">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">
                 Product
@@ -377,7 +379,7 @@ export function BankLogsTable({ initialData = [], cartProductIds = new Set() }: 
               paginatedLogs.map((log: BankLog) => (
                 <tr
                   key={log.id}
-                  className="hover:bg-stone-900/60 transition"
+                  className="hover:bg-muted/50 transition"
                 >
                   <td className="px-4 py-3 whitespace-nowrap">
                     <div className="flex items-center gap-2">
@@ -429,7 +431,7 @@ export function BankLogsTable({ initialData = [], cartProductIds = new Set() }: 
                   <td className="px-4 py-3">
                     <Badge
                       variant="secondary"
-                      className="text-xs font-semibold px-2 py-1 bg-green-700/20 text-green-400"
+                      className="text-xs font-semibold px-2 py-1 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 dark:bg-emerald-500/20"
                     >
                       {log.status}
                     </Badge>
