@@ -257,12 +257,10 @@ export function ShopFilters() {
                 </div>
             </div>
 
-            {activeFilterCount > 0 && (
+            {/* Only show 'Active Filters' row if there are HIDDEN filters active (Advanced) */}
+            {(selectedBanks.length > 0 || minBal || maxBal) && (
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground animate-in fade-in slide-in-from-top-2">
-                    <span>Active:</span>
-                    {searchParams.get("q") && <Badge variant="secondary" className="px-2 py-0.5 text-xs">Search: {searchParams.get("q")}</Badge>}
-                    {region !== "all" && <Badge variant="secondary" className="px-2 py-0.5 text-xs">Region: {region}</Badge>}
-                    {price !== "all" && <Badge variant="secondary" className="px-2 py-0.5 text-xs">Price: {price}</Badge>}
+                    <span>Applied:</span>
                     {selectedBanks.length > 0 && (
                         <Badge variant="secondary" className="px-2 py-0.5 text-xs">Banks: {selectedBanks.join(", ")}</Badge>
                     )}
