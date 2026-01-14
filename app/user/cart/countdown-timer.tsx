@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Clock } from "lucide-react";
 import {
     getCartItemTimer,
@@ -28,58 +28,45 @@ export function CountdownTimer({
     cartItemId,
     onExpired,
 }: CountdownTimerProps) {
-    const [timeRemaining, setTimeRemaining] = useState<number>(0);
-    const [isExpired, setIsExpired] = useState(false);
-    const [hasTriggeredExpired, setHasTriggeredExpired] = useState(false);
-    const [itemStartTime, setItemStartTime] = useState<number | null>(null);
-
     const durationMinutes = getTimerDuration();
+    const startTimeRef = useRef<number | null>(null);
+    const hasTriggeredExpiredRef = useRef(false);
 
-    // Load timer start time from localStorage
+    const [timeRemaining, setTimeRemaining] = useState<number>(durationMinutes * 60);
+    const [isExpired, setIsExpired] = useState(false);
+
     useEffect(() => {
-        const startTime = getCartItemTimer(cartItemId);
-        setItemStartTime(startTime);
-    }, [cartItemId]);
+        startTimeRef.current = getCartItemTimer(cartItemId);
+        hasTriggeredExpiredRef.current = false;
 
-    useEffect(() => {
-        if (!itemStartTime) {
-            return;
-        }
+        const tick = () => {
+            const startTime = startTimeRef.current;
+            if (!startTime) {
+                return;
+            }
 
-        const calculateRemainingTime = () => {
             const now = Date.now();
-            const elapsed = Math.floor((now - itemStartTime) / 1000); // elapsed seconds
+            const elapsed = Math.floor((now - startTime) / 1000); // elapsed seconds
             const totalDuration = durationMinutes * 60; // total duration in seconds
             const remaining = Math.max(0, totalDuration - elapsed);
 
-            return remaining;
-        };
-
-        // Calculate initial remaining time
-        const initialRemaining = calculateRemainingTime();
-        setTimeRemaining(initialRemaining);
-
-        if (initialRemaining <= 0 && !hasTriggeredExpired) {
-            setIsExpired(true);
-            setHasTriggeredExpired(true);
-            onExpired();
-            return;
-        }
-
-        // Update timer every second
-        const interval = setInterval(() => {
-            const remaining = calculateRemainingTime();
             setTimeRemaining(remaining);
 
-            if (remaining <= 0 && !hasTriggeredExpired) {
+            if (remaining <= 0 && !hasTriggeredExpiredRef.current) {
+                hasTriggeredExpiredRef.current = true;
                 setIsExpired(true);
-                setHasTriggeredExpired(true);
                 onExpired();
             }
-        }, 1000);
+        };
 
-        return () => clearInterval(interval);
-    }, [itemStartTime, durationMinutes, onExpired, hasTriggeredExpired, cartItemId]);
+        const interval = setInterval(tick, 1000);
+        const timeout = setTimeout(tick, 0);
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timeout);
+        };
+    }, [cartItemId, durationMinutes, onExpired]);
 
     // Format time as MM:SS
     const formatTime = (seconds: number): string => {
@@ -90,15 +77,6 @@ export function CountdownTimer({
 
     // Check if time is critical (< 2 minutes)
     const isCritical = timeRemaining < 120 && timeRemaining > 0; // Less than 2 minutes
-
-    if (!itemStartTime) {
-        return (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3" />
-                <span>10:00</span>
-            </div>
-        );
-    }
 
     if (isExpired || timeRemaining <= 0) {
         return (
