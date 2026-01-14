@@ -24,6 +24,7 @@
     "ecpair": "^3.0.0",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
+    "next-themes": "^0.4.6",
     "pg": "^8.16.3",
     "qrcode": "^1.5.4",
     "radix-ui": "^1.4.3",
