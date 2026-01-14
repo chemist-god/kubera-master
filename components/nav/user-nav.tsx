@@ -8,7 +8,6 @@ import {
 import { User } from "lucide-react";
 import { getCurrentUser } from "@/lib/actions/user";
 import { getWallet } from "@/lib/actions/wallet";
-import { deleteSession } from "@/lib/auth/session";
 import { LogoutButton } from "./logout-button";
 
 export async function UserNav() {
@@ -31,7 +30,7 @@ export async function UserNav() {
       </span>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="bg-stone-900 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition">
+          <button className="bg-muted hover:bg-muted/80 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg text-foreground border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition">
             <User className="w-5 h-5" />
           </button>
         </DropdownMenuTrigger>
