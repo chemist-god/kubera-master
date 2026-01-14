@@ -80,7 +80,7 @@ export function QRCodeModal({ address, onClose }: QRCodeModalProps) {
 
     return (
         <Drawer open={open} onOpenChange={handleOpenChange}>
-            <DrawerContent className="bg-background/95 backdrop-blur-xl border-t border-white/10 rounded-t-[2rem]">
+            <DrawerContent className="bg-background/95 backdrop-blur-xl border-t border-white/10 rounded-t-[2rem] max-h-[85vh] flex flex-col">
                 <DrawerHeader className="text-left pt-6 pb-2">
                     <div className="flex flex-col items-center text-center gap-4 w-full">
                         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center ring-4 ring-primary/5">
@@ -92,7 +92,7 @@ export function QRCodeModal({ address, onClose }: QRCodeModalProps) {
                         </div>
                     </div>
                 </DrawerHeader>
-                <div className="px-6 pb-6">
+                <div className="px-6 pb-6 overflow-y-auto flex-1">
                     <QRCodeContent
                         address={address}
                         bitcoinURI={bitcoinURI}
