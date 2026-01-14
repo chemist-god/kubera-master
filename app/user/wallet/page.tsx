@@ -39,7 +39,7 @@ export default async function WalletPage() {
             {wallet?.address ? (
               <>
                 <div className="flex items-center gap-2 mb-4">
-                  <Badge variant="secondary" className="text-xs font-semibold bg-green-500/10 text-green-400 px-2 py-1">
+                  <Badge variant="secondary" className="text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 px-2 py-1 dark:bg-emerald-500/20">
                     Wallet Active
                   </Badge>
                 </div>
@@ -48,7 +48,7 @@ export default async function WalletPage() {
             ) : (
               <>
                 <div className="flex items-center gap-2 mb-4">
-                  <Badge variant="secondary" className="text-xs font-semibold bg-yellow-500/10 text-yellow-400 px-2 py-1">
+                  <Badge variant="secondary" className="text-xs font-semibold bg-primary/10 text-primary px-2 py-1">
                     Wallet Setup Required
                   </Badge>
                 </div>
