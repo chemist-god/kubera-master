@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CartItem } from "@/lib/api/types";
 import { removeFromCart, updateCartItem } from "@/lib/actions/cart";
 import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Trash2, Plus, Minus } from "lucide-react";
 import { CountdownTimer } from "./countdown-timer";
 import { clearCartItemTimer } from "@/lib/utils/cart-timers";
@@ -25,7 +25,6 @@ export function CartTable({
 }: CartTableProps) {
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
-  const { toast } = useToast();
 
   /**
    * Update quantity of a cart item
@@ -48,33 +47,25 @@ export function CartTable({
         const itemName = item?.product.name || "Item";
 
         if (newQuantity > item!.quantity) {
-          toast({
-            variant: "default",
-            title: "Quantity Increased ✨",
+          toast("Quantity Increased ✨", {
             description: `${itemName} quantity updated to ${newQuantity}.`,
             duration: 2000,
           });
         } else {
-          toast({
-            variant: "default",
-            title: "Quantity Decreased",
+          toast("Quantity Decreased", {
             description: `${itemName} quantity updated to ${newQuantity}.`,
             duration: 2000,
           });
         }
       } else {
-        toast({
-          variant: "destructive",
-          title: "Error",
+        toast.error("Error", {
           description: result.error || "Failed to update quantity.",
           duration: 4000,
         });
       }
     } catch (error) {
       console.error("Error updating quantity:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
+      toast.error("Error", {
         description: "An unexpected error occurred.",
         duration: 4000,
       });
@@ -123,25 +114,19 @@ export function CartTable({
         onItemsChange(updatedItems);
 
         // Show success toast
-        toast({
-          variant: "default",
-          title: "Removed from Cart 🗑️",
+        toast("Removed from Cart 🗑️", {
           description: `${itemName} has been removed from your cart.`,
           duration: 3000,
         });
       } else {
-        toast({
-          variant: "destructive",
-          title: "Error",
+        toast.error("Error", {
           description: result.error || "Failed to remove item from cart.",
           duration: 4000,
         });
       }
     } catch (error) {
       console.error("Error removing item:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
+      toast.error("Error", {
         description: "An unexpected error occurred while removing the item.",
         duration: 4000,
       });
