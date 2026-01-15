@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 type ProfileUser = {
   id?: string;
@@ -20,7 +20,6 @@ interface ProfileSettingsProps {
 }
 
 export function ProfileSettings({ initialUser }: ProfileSettingsProps) {
-  const { toast } = useToast();
   const [savedUser, setSavedUser] = useState<ProfileUser | null>(initialUser);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
@@ -65,15 +64,12 @@ export function ProfileSettings({ initialUser }: ProfileSettingsProps) {
         });
       }
 
-      toast({
-        title: "Profile updated",
+      toast.success("Profile updated", {
         description: "Your account details have been saved.",
       });
     } catch (error) {
-      toast({
-        title: "Update failed",
+      toast.error("Update failed", {
         description: error instanceof Error ? error.message : "Please try again.",
-        variant: "destructive",
       });
     } finally {
       setIsSavingProfile(false);
@@ -100,15 +96,12 @@ export function ProfileSettings({ initialUser }: ProfileSettingsProps) {
         newPassword: "",
         confirmPassword: "",
       });
-      toast({
-        title: "Password updated",
+      toast.success("Password updated", {
         description: "Your password has been changed successfully.",
       });
     } catch (error) {
-      toast({
-        title: "Password update failed",
+      toast.error("Password update failed", {
         description: error instanceof Error ? error.message : "Please try again.",
-        variant: "destructive",
       });
     } finally {
       setIsSavingPassword(false);
