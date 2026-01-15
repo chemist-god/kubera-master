@@ -7,7 +7,7 @@ import { CartTable } from "./cart-table";
 import { CartItem } from "@/lib/api/types";
 import { createOrder } from "@/lib/actions/orders";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { removeFromCart } from "@/lib/actions/cart";
 import {
   clearCartItemTimer,
@@ -31,7 +31,6 @@ export function CartPageClient({
   const [cartItems, setCartItems] = useState(initialCartItems);
   const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
-  const { toast } = useToast();
 
   // Initialize timers for items that don't have one yet
   useEffect(() => {
@@ -60,9 +59,7 @@ export function CartPageClient({
 
     const itemName = expiredItem.product.name || "Item";
 
-    toast({
-      variant: "destructive",
-      title: "Item Expired ⏰",
+    toast.error("Item Expired ⏰", {
       description: `${itemName} has expired and has been removed from your cart.`,
       duration: 5000,
     });
@@ -78,9 +75,7 @@ export function CartPageClient({
       setCartItems((prev) => prev.filter((item) => item.id !== itemId));
     } catch (error) {
       console.error("Error removing expired item:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to remove expired item.",
         duration: 4000,
       });
@@ -89,9 +84,7 @@ export function CartPageClient({
 
   const handleProceedToCheckout = async () => {
     if (hasInsufficientBalance) {
-      toast({
-        variant: "destructive",
-        title: "Insufficient Balance",
+      toast.error("Insufficient Balance", {
         description: "Please top up your account to proceed with checkout.",
         duration: 4000,
       });
@@ -109,9 +102,7 @@ export function CartPageClient({
           clearCartItemTimer(item.id);
         });
 
-        toast({
-          variant: "success",
-          title: "Order Created! 🎉",
+        toast.success("Order Created! 🎉", {
           description: "Your order has been successfully created.",
           duration: 3000,
         });
@@ -122,18 +113,14 @@ export function CartPageClient({
           router.refresh();
         }, 1000);
       } else {
-        toast({
-          variant: "destructive",
-          title: "Error",
+        toast.error("Error", {
           description: result.error || "Failed to create order.",
           duration: 4000,
         });
       }
     } catch (error) {
       console.error("Error creating order:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
+      toast.error("Error", {
         description: "An unexpected error occurred while creating the order.",
         duration: 4000,
       });
