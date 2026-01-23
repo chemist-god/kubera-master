@@ -1,13 +1,6 @@
 import { LoginForm } from "./login-form";
 
-export default async function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ registered?: string }>;
-}) {
-  const params = await searchParams;
-  const isRegistered = params?.registered === "true";
-
+export default async function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden px-4 py-8">
       {/* Subtle Background Effects - Clean & Lit */}
@@ -27,11 +20,6 @@ export default async function LoginPage({
           <p className="text-sm text-muted-foreground mt-2 text-center">
             Sign in to your Kubera account
           </p>
-          {isRegistered && (
-            <div className="mt-4 p-3 w-full text-center rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 font-medium text-sm animate-in fade-in slide-in-from-top-2">
-              Account created successfully!
-            </div>
-          )}
         </div>
 
         <LoginForm />
