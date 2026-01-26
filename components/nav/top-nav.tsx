@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth/session";
 import { ROUTES } from "@/lib/utils/constants";
 import { UserNav } from "@/components/nav/user-nav";
 import { ModeToggle } from "@/components/nav/mode-toggle";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import {
   Sheet,
   SheetContent,
@@ -139,6 +140,7 @@ export async function TopNav() {
         </div>
 
         <div className="flex items-center gap-3">
+          {session ? <NotificationBell /> : null}
           <ModeToggle />
 
           {session ? (
