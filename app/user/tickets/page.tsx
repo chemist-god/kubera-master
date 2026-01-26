@@ -1,9 +1,6 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MessageCircle } from "lucide-react";
 import { getTickets } from "@/lib/actions/tickets";
 import { TicketsList } from "./tickets-list";
-import { CreateTicketButton } from "./create-ticket-button";
+import { SupportChatPanel } from "./support-chat-panel";
 
 export default async function TicketsPage() {
   const result = await getTickets();
@@ -17,22 +14,20 @@ export default async function TicketsPage() {
           <p className="text-muted-foreground text-lg font-light">Get help from our support team</p>
         </div>
 
-        {tickets.length === 0 ? (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-border/50 rounded-3xl bg-muted/5">
-              <div className="w-16 h-16 rounded-full bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center mb-6">
-                <MessageCircle className="w-8 h-8 text-primary" />
+        <div className="space-y-8">
+          <SupportChatPanel />
+          {tickets.length > 0 ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Previous Conversations</h2>
+                <span className="text-xs text-muted-foreground">
+                  {tickets.length} ticket{tickets.length === 1 ? "" : "s"}
+                </span>
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-foreground">No Active Chat</h3>
-              <p className="text-muted-foreground mb-6 max-w-sm text-center">
-                Start a conversation with our support team to get assistance with your orders or account.
-              </p>
-              <CreateTicketButton />
+              <TicketsList tickets={tickets} />
             </div>
-          </div>
-        ) : (
-          <TicketsList tickets={tickets} />
-        )}
+          ) : null}
+        </div>
       </div>
     </main>
   );
