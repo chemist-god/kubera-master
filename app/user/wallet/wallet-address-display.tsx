@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Copy, Check, Eye, EyeOff, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { toast, toastError } from "@/lib/utils/toast";
 import { QRCodeModal } from "./qr-code-modal";
 
 interface WalletAddressDisplayProps {
@@ -30,7 +30,7 @@ export function WalletAddressDisplay({ address }: WalletAddressDisplayProps) {
             });
             setTimeout(() => setCopied(false), 2000);
         } catch (error) {
-            toast.error("Failed to copy", {
+            toastError("Failed to copy", {
                 description: "Please try again or copy manually",
             });
         }
