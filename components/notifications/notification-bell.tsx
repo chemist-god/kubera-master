@@ -32,9 +32,7 @@ export function NotificationBell() {
 
     const fetchNotifications = useCallback(async () => {
         try {
-            console.log("Fetching notifications...");
             const result = await getNotifications();
-            console.log("Notification fetch result:", result);
             if (result.success && result.data) {
                 setNotifications(result.data.notifications);
                 setUnreadCount(result.data.unreadCount);
