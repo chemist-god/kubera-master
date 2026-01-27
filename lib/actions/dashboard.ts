@@ -38,7 +38,7 @@ export async function getDashboardStats() {
 
     const typedOrders: OrderStatusOnly[] = orders;
 
-    const availableFunds = wallet?.balance || 0;
+    const availableFunds = wallet?.balance ?? 0;
     const totalCompleted = typedOrders.filter(
       (order) => order.status === "Completed"
     ).length;
