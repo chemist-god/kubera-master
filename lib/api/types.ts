@@ -41,11 +41,19 @@ export interface OrderItem {
 export interface Order {
   id: string;
   userId: string;
+  receiptNumber?: string | null;
+  transactionId?: string | null;
+  subtotal?: number | null;
+  taxAmount: number;
+  taxRate: number;
   total: number;
+  paymentMethod: string;
   status: string;
   createdAt: Date;
   updatedAt: Date;
   items: OrderItem[];
+  transaction?: Transaction;
+  user?: UserInfo;
 }
 
 // Wallet types
@@ -56,6 +64,35 @@ export interface Wallet {
   address: string | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+// Transaction types
+export interface Transaction {
+  id: string;
+  orderId: string;
+  userId: string;
+  amount: number;
+  type: string;
+  method: string;
+  status: string;
+  reference?: string | null;
+  metadata?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// User info types (for receipts)
+export interface UserInfo {
+  id: string;
+  username: string;
+  email: string;
+  phone?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zipCode?: string | null;
+  country: string;
+  createdAt: Date;
 }
 
 // Ticket types
