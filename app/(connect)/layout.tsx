@@ -8,10 +8,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { genVariable } from "@/lib/config/genVariable";
 
 export const metadata: Metadata = {
-  title: "Kubera",
-  description: "Your Online Shop",
+  title: genVariable.app.name,
+  description: genVariable.app.description,
 };
 
 export default function ConnectLayout({ children }: { children: React.ReactNode }) {
