@@ -4,6 +4,12 @@ import { prisma } from "@/lib/db/prisma";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { withErrorHandling } from "@/lib/utils/result";
 import { revalidatePath } from "next/cache";
+import { businessConfig } from "@/lib/config/business";
+import {
+  generateReceiptNumber,
+  generateTransactionId,
+  calculateOrderTotals,
+} from "@/lib/utils/receipt-helpers";
 
 type CartItemWithProduct = {
   productId: string;
@@ -35,6 +41,21 @@ export async function getOrder(orderId: string) {
       include: {
         items: {
           include: { product: true },
+        },
+        transaction: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            phone: true,
+            address: true,
+            city: true,
+            state: true,
+            zipCode: true,
+            country: true,
+            createdAt: true,
+          },
         },
       },
     });
@@ -79,18 +100,28 @@ export async function createOrder(cartItemIds: string[]) {
       throw new Error("No items in cart");
     }
 
-    // Step 2: Calculate total
-    const total = cartItems.reduce(
+    // Step 2: Calculate totals with tax
+    const subtotal = cartItems.reduce(
       (sum: number, item: CartItemWithProduct) =>
         sum + item.product.price * item.quantity,
       0
     );
 
-    // Step 3: Create order with items
+    const totals = calculateOrderTotals(subtotal, businessConfig.defaultTaxRate);
+    const receiptNumber = generateReceiptNumber();
+    const transactionId = generateTransactionId();
+
+    // Step 3: Create order with items and transaction
     const order = await prisma.order.create({
       data: {
         userId,
-        total,
+        receiptNumber,
+        transactionId,
+        subtotal: totals.subtotal,
+        taxAmount: totals.taxAmount,
+        taxRate: totals.taxRate,
+        total: totals.total,
+        paymentMethod: "Wallet Balance",
         status: "Pending",
         items: {
           create: cartItems.map((item: CartItemWithProduct) => ({
@@ -99,11 +130,21 @@ export async function createOrder(cartItemIds: string[]) {
             price: item.product.price,
           })),
         },
+        transaction: {
+          create: {
+            userId,
+            amount: totals.total,
+            type: "purchase",
+            method: "wallet",
+            status: "completed",
+          },
+        },
       },
       include: {
         items: {
           include: { product: true },
         },
+        transaction: true,
       },
     });
 
