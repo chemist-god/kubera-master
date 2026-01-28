@@ -1,0 +1,164 @@
+/* Print Styles for Order Receipt */
+
+@media print {
+  /* Page setup */
+  @page {
+    size: A4 portrait;
+    margin: 1.5cm;
+  }
+
+  /* Hide interactive elements */
+  .print\:hidden,
+  button,
+  nav,
+  [role="navigation"],
+  .no-print {
+    display: none !important;
+  }
+
+  /* Body optimization */
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+    font-size: 11pt;
+    line-height: 1.4;
+    color: #000;
+    background: #fff;
+  }
+
+  /* Remove shadows and fancy effects */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Card styling for print */
+  .receipt-card {
+    border: 1px solid #000 !important;
+    background: #fff !important;
+  }
+
+  /* Typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: #000 !important;
+    page-break-after: avoid;
+  }
+
+  /* Avoid breaking elements */
+  .order-items,
+  .customer-info,
+  .order-summary,
+  .qr-code-section,
+  .receipt-header,
+  .receipt-footer {
+    page-break-inside: avoid;
+  }
+
+  /* Tables and lists */
+  table,
+  tr,
+  td,
+  th {
+    page-break-inside: avoid;
+  }
+
+  /* Links */
+  a {
+    color: #000 !important;
+    text-decoration: none !important;
+  }
+
+  /* Remove background colors and gradients */
+  .bg-primary,
+  .bg-secondary,
+  .bg-muted,
+  .bg-gradient-to-r,
+  [class*="bg-"],
+  [class*="backdrop-blur"] {
+    background: transparent !important;
+    background-image: none !important;
+  }
+
+  /* Borders for structure */
+  .border {
+    border-color: #ddd !important;
+  }
+
+  /* Logo handling */
+  .screen-logo {
+    display: none !important;
+  }
+
+  .print-logo {
+    display: block !important;
+  }
+
+  /* QR Code */
+  .qr-code-section svg {
+    max-width: 120px;
+    height: auto;
+  }
+
+  /* Footer stays at bottom */
+  .receipt-footer {
+    margin-top: 2cm;
+    border-top: 1px solid #000;
+    padding-top: 0.5cm;
+  }
+
+  /* Remove animations */
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Ensure text is black */
+  .text-muted-foreground,
+  .text-primary,
+  .text-foreground {
+    color: #333 !important;
+  }
+
+  /* Badge styling for print */
+  [class*="badge"] {
+    border: 1px solid #000 !important;
+    background: transparent !important;
+    color: #000 !important;
+  }
+
+  /* Remove hover states */
+  *:hover {
+    background: transparent !important;
+  }
+
+  /* Separator lines */
+  .separator,
+  hr {
+    border-color: #000 !important;
+    opacity: 1 !important;
+  }
+
+  /* Grid layouts */
+  .grid {
+    display: grid;
+  }
+
+  /* Flex layouts */
+  .flex {
+    display: flex;
+  }
+
+  /* Ensure proper spacing */
+  .space-y-1 > * + *,
+  .space-y-2 > * + *,
+  .space-y-3 > * + *,
+  .space-y-4 > * + * {
+    margin-top: inherit;
+  }
+}
