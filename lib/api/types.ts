@@ -52,8 +52,8 @@ export interface Order {
   createdAt: Date;
   updatedAt: Date;
   items: OrderItem[];
-  transaction?: Transaction;
-  user?: UserInfo;
+  transaction?: Transaction | null;
+  user?: UserInfo | null;
 }
 
 // Wallet types
