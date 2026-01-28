@@ -1,6 +1,8 @@
 import { RegisterForm } from "./register-form";
 import { ROUTES } from "@/lib/utils/constants";
 
+export const dynamic = 'force-dynamic';
+
 export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden px-4 py-8">
