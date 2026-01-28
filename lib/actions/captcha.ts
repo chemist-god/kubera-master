@@ -2,9 +2,10 @@
 
 import { cookies } from "next/headers";
 import { ActionResult, success, failure } from "@/lib/utils/result";
+import { genVariable } from "@/lib/config/genVariable";
 
-const CAPTCHA_COOKIE_NAME = "kubera_captcha";
-const CAPTCHA_MAX_AGE = 60 * 5; // 5 minutes
+const CAPTCHA_COOKIE_NAME = genVariable.cookies.captcha;
+const CAPTCHA_MAX_AGE = genVariable.timeouts.captchaMaxAge;
 
 interface CaptchaChallenge {
     question: string;
@@ -28,16 +29,16 @@ function generateCaptcha(): CaptchaChallenge {
 
     if (operation.type === "multiply") {
         // For multiplication, use smaller numbers (1-10)
-        num1 = Math.floor(Math.random() * 10) + 1;
-        num2 = Math.floor(Math.random() * 10) + 1;
+        num1 = Math.floor(Math.random() * genVariable.captcha.multiplyRange.max) + genVariable.captcha.multiplyRange.min;
+        num2 = Math.floor(Math.random() * genVariable.captcha.multiplyRange.max) + genVariable.captcha.multiplyRange.min;
     } else if (operation.type === "subtract") {
         // For subtraction, ensure positive result
-        num1 = Math.floor(Math.random() * 50) + 20;
+        num1 = Math.floor(Math.random() * genVariable.captcha.subtractMax) + genVariable.captcha.subtractMin;
         num2 = Math.floor(Math.random() * num1) + 1;
     } else {
         // For addition, use numbers 1-50
-        num1 = Math.floor(Math.random() * 50) + 1;
-        num2 = Math.floor(Math.random() * 50) + 1;
+        num1 = Math.floor(Math.random() * genVariable.captcha.addRange.max) + genVariable.captcha.addRange.min;
+        num2 = Math.floor(Math.random() * genVariable.captcha.addRange.max) + genVariable.captcha.addRange.min;
     }
 
     const answer = operation.fn(num1, num2);
