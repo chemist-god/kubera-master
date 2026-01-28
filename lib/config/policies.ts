@@ -1,18 +1,20 @@
+import { genVariable } from "./genVariable";
+
 export const policies = {
-  returnPolicy: "Digital products are final sale. All sales are final once delivery is completed. Please review your order carefully before completing purchase.",
+  returnPolicy: genVariable.policies.returnPolicy,
   
-  warranty: "All accounts are guaranteed to be as described. If there are any discrepancies, contact support within 24 hours of purchase for resolution.",
+  warranty: genVariable.policies.warranty,
   
   customerService: {
-    email: "support@kubera.com",
-    phone: "1-800-KUBERA-0",
-    hours: "Available 24/7",
-    supportUrl: "/user/tickets"
+    email: genVariable.contact.email,
+    phone: genVariable.contact.phone,
+    hours: genVariable.contact.hours,
+    supportUrl: genVariable.contact.supportUrl,
   },
   
-  legal: "By completing this purchase, you agree to our Terms of Service and Privacy Policy. All transactions are securely processed.",
+  legal: genVariable.policies.legal,
   
-  thankYou: "Thank you for choosing Kubera. We appreciate your business and trust in our platform.",
+  thankYou: genVariable.policies.thankYou,
   
-  additionalNotes: "Please keep this receipt for your records. For any questions or concerns, contact our support team."
+  additionalNotes: genVariable.policies.additionalNotes,
 };
