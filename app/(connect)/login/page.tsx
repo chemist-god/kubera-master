@@ -1,4 +1,7 @@
 import { LoginForm } from "./login-form";
+import { Suspense } from "react";
+
+export const dynamic = 'force-dynamic';
 
 export default async function LoginPage() {
   return (
@@ -22,7 +25,16 @@ export default async function LoginPage() {
           </p>
         </div>
 
-        <LoginForm />
+        <Suspense fallback={
+          <div className="flex flex-col gap-4">
+            <div className="h-11 bg-muted/30 rounded-xl animate-pulse" />
+            <div className="h-11 bg-muted/30 rounded-xl animate-pulse" />
+            <div className="h-32 bg-muted/30 rounded-xl animate-pulse" />
+            <div className="h-11 bg-muted/30 rounded-xl animate-pulse mt-4" />
+          </div>
+        }>
+          <LoginForm />
+        </Suspense>
 
         <div className="text-center text-sm text-muted-foreground">
           {"Don't have an account? "}
