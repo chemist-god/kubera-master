@@ -2,10 +2,12 @@
  * Application constants
  */
 
+import { genVariable } from "@/lib/config/genVariable";
+
 // Session configuration
 export const SESSION_CONFIG = {
-  COOKIE_NAME: "kubera_session",
-  MAX_AGE: 60 * 60 * 24 * 7, // 7 days
+  COOKIE_NAME: genVariable.cookies.session,
+  MAX_AGE: genVariable.timeouts.sessionMaxAge,
 } as const;
 
 // Route configurations
