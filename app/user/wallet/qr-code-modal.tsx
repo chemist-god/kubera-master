@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import QRCodeSVG from "react-qr-code";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { genVariable } from "@/lib/config/genVariable";
 import {
     Dialog,
     DialogContent,
@@ -29,7 +30,7 @@ export function QRCodeModal({ address, onClose }: QRCodeModalProps) {
     const isDesktop = useMediaQuery("(min-width: 768px)");
     const [focusedQR, setFocusedQR] = useState(false);
 
-    const label = "Kubera Wallet";
+    const label = `${genVariable.app.displayName} Wallet`;
     const message = "Top up balance";
     const bitcoinURI = `bitcoin:${address}?label=${encodeURIComponent(
         label
