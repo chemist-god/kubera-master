@@ -6,6 +6,12 @@
  */
 
 export const genVariable = {
+  // Version Information
+  version: {
+    app: "0.9.0", // Semantic versioning (MAJOR.MINOR.PATCH)
+    lastUpdated: "2026-01-28", // Date of last major update
+  },
+
   // Application Identity
   app: {
     name: "Kubera",
