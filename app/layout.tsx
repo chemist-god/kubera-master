@@ -29,6 +29,13 @@ export default function RootLayout({
         >
           <TopNav />
           {children}
+          <footer className="mt-10 border-t border-white/10 py-6 text-center text-xs text-muted-foreground">
+            <span className="font-medium text-foreground/80">
+              {genVariable.app.displayName}
+            </span>
+            <span className="mx-2 text-muted-foreground/60">•</span>
+            <span className="font-mono">v{genVariable.version.app}</span>
+          </footer>
           <Toaster />
         </ThemeProvider>
       </body>
