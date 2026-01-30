@@ -142,3 +142,45 @@
     @apply bg-background text-foreground font-sans antialiased;
   }
 }
+
+@layer components {
+  .glass-panel {
+    @apply border border-border/60 bg-background/60 backdrop-blur-2xl shadow-[0_28px_70px_-45px_rgba(14,165,233,0.55)];
+  }
+
+  .glass-card {
+    @apply border border-border/50 bg-card/60 backdrop-blur-xl;
+  }
+}
+
+@keyframes coin-float {
+  0% {
+    transform: translateY(0) rotate(var(--coin-rotate, 0deg));
+  }
+  50% {
+    transform: translateY(-10px) rotate(calc(var(--coin-rotate, 0deg) + 1deg));
+  }
+  100% {
+    transform: translateY(0) rotate(var(--coin-rotate, 0deg));
+  }
+}
+
+@keyframes coin-float-slow {
+  0% {
+    transform: translateY(0) rotate(var(--coin-rotate, 0deg));
+  }
+  50% {
+    transform: translateY(12px) rotate(calc(var(--coin-rotate, 0deg) - 1deg));
+  }
+  100% {
+    transform: translateY(0) rotate(var(--coin-rotate, 0deg));
+  }
+}
+
+.coin-float {
+  animation: coin-float 6s ease-in-out infinite;
+}
+
+.coin-float-slow {
+  animation: coin-float-slow 8s ease-in-out infinite;
+}
