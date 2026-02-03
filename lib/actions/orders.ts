@@ -121,7 +121,7 @@ export async function createOrder(cartItemIds: string[]) {
         taxAmount: totals.taxAmount,
         taxRate: totals.taxRate,
         total: totals.total,
-        paymentMethod: "Wallet Balance",
+        paymentMethod: "Pending Payment",
         status: "Pending",
         items: {
           create: cartItems.map((item: CartItemWithProduct) => ({
@@ -135,8 +135,8 @@ export async function createOrder(cartItemIds: string[]) {
             userId,
             amount: totals.total,
             type: "purchase",
-            method: "wallet",
-            status: "completed",
+            method: "crypto",
+            status: "pending",
           },
         },
       },
@@ -256,4 +256,89 @@ export async function updateOrderStatus(
     }
     // For "Processing" status, keep products as "Pending"
   }, "Failed to update order status");
+}
+
+/**
+ * Create OxaPay payment for an order
+ * 
+ * This function:
+ * 1. Calls OxaPay API to create invoice
+ * 2. Updates order with payment details
+ * 3. Returns payment information for display
+ * 
+ * @param orderId - The order ID to create payment for
+ */
+export async function createOrderPayment(orderId: string) {
+  return withErrorHandling(async () => {
+    const userId = await requireAuth();
+
+    // Get order details
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    // Verify order belongs to user
+    if (order.userId !== userId) {
+      throw new Error("Unauthorized access to order");
+    }
+
+    // Check if payment already created
+    if (order.paymentTrackId) {
+      throw new Error("Payment already created for this order");
+    }
+
+    // Import OxaPay service
+    const { createInvoice } = await import("@/lib/services/oxapay");
+
+    // Create OxaPay invoice
+    const invoice = await createInvoice({
+      amount: order.total,
+      currency: "USD",
+      orderId: order.id,
+      email: order.user.email,
+      description: `Order #${order.receiptNumber || order.id.slice(0, 8)}`,
+      returnUrl: `${process.env.NEXT_PUBLIC_SITE_URL || "https://klassico.vercel.app"}/user/orders/${order.id}?new=true`,
+    });
+
+    // Calculate expiration time
+    const expiresAt = new Date(invoice.data.expired_at * 1000);
+
+    // Update order with payment details
+    const updatedOrder = await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        paymentProvider: "oxapay",
+        paymentTrackId: invoice.data.track_id,
+        paymentUrl: invoice.data.payment_url,
+        paymentExpiresAt: expiresAt,
+        paymentMethod: "Bitcoin (OxaPay)",
+      },
+      include: {
+        items: {
+          include: { product: true },
+        },
+        transaction: true,
+      },
+    });
+
+    return {
+      order: updatedOrder,
+      payment: {
+        trackId: invoice.data.track_id,
+        paymentUrl: invoice.data.payment_url,
+        expiresAt: expiresAt.toISOString(),
+      },
+    };
+  }, "Failed to create order payment");
 }
