@@ -74,7 +74,7 @@ export function OrderReceipt({ order, isNew = false }: OrderReceiptProps) {
     return (
         <div id="receipt-content" className="w-full max-w-3xl mx-auto animate-in fade-in zoom-in duration-500">
             {/* Success Header for New Orders */}
-            {isNew && (
+            {isNew && order.status === "Completed" && (
                 <div className="text-center mb-8 space-y-4">
                     <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto ring-8 ring-green-500/5">
                         <CheckCircle2 className="w-10 h-10 text-green-500" />
@@ -214,12 +214,34 @@ export function OrderReceipt({ order, isNew = false }: OrderReceiptProps) {
                                 </div>
                                 <div>
                                     <span className="text-xs text-muted-foreground uppercase block">Payment Method</span>
-                                    <span className="capitalize">{order.transaction.method}</span>
+                                    <span className="capitalize">{order.paymentMethod || order.transaction.method}</span>
                                 </div>
                                 <div>
                                     <span className="text-xs text-muted-foreground uppercase block">Transaction Type</span>
                                     <span className="capitalize">{order.transaction.type}</span>
                                 </div>
+                                {order.paymentTrackId && (
+                                    <div className="col-span-2">
+                                        <span className="text-xs text-muted-foreground uppercase block">Payment Track ID</span>
+                                        <span className="font-mono text-xs">{order.paymentTrackId}</span>
+                                    </div>
+                                )}
+                                {order.transaction.metadata && (() => {
+                                    try {
+                                        const metadata = JSON.parse(order.transaction.metadata);
+                                        if (metadata.txHash) {
+                                            return (
+                                                <div className="col-span-2">
+                                                    <span className="text-xs text-muted-foreground uppercase block">Blockchain Transaction</span>
+                                                    <span className="font-mono text-xs break-all">{metadata.txHash}</span>
+                                                </div>
+                                            );
+                                        }
+                                    } catch (e) {
+                                        return null;
+                                    }
+                                    return null;
+                                })()}
                             </div>
                         </div>
                     )}
