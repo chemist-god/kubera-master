@@ -51,6 +51,12 @@ export interface Order {
   status: string;
   createdAt: Date;
   updatedAt: Date;
+  // OxaPay payment fields
+  paymentProvider?: string | null;
+  paymentAddress?: string | null;
+  paymentTrackId?: string | null;
+  paymentUrl?: string | null;
+  paymentExpiresAt?: Date | null;
   items: OrderItem[];
   transaction?: Transaction | null;
   user?: UserInfo | null;
