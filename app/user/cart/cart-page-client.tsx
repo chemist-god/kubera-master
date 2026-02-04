@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { FileText, AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { FileText, AlertCircle, AlertTriangle, Clock, ShoppingCart } from "lucide-react";
 import { CartTable } from "./cart-table";
 import { CartItem } from "@/lib/api/types";
 import { createOrder } from "@/lib/actions/orders";
@@ -14,12 +15,17 @@ import {
   getCartItemTimer,
   setCartItemTimer,
 } from "@/lib/utils/cart-timers";
+import { genVariable } from "@/lib/config/genVariable";
+
+// Order limits from centralized config
+const { orderLimits } = genVariable;
 
 interface CartPageClientProps {
   initialCartItems: CartItem[];
   availableFunds: number;
   total: number;
   hasInsufficientBalance: boolean;
+  pendingOrderCount?: number; // New prop for pending order count
 }
 
 export function CartPageClient({
@@ -27,10 +33,35 @@ export function CartPageClient({
   availableFunds,
   total: initialTotal,
   hasInsufficientBalance: initialHasInsufficientBalance,
+  pendingOrderCount = 0,
 }: CartPageClientProps) {
   const [cartItems, setCartItems] = useState(initialCartItems);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [rateLimitWait, setRateLimitWait] = useState<number | null>(null);
   const router = useRouter();
+
+  // Determine if checkout should be blocked due to too many pending orders
+  const hasTooManyPendingOrders = pendingOrderCount >= orderLimits.maxPendingOrders;
+  const showPendingOrderWarning = pendingOrderCount >= orderLimits.pendingOrderWarningThreshold && !hasTooManyPendingOrders;
+
+  // Countdown for rate limit
+  useEffect(() => {
+    if (rateLimitWait === null || rateLimitWait <= 0) {
+      setRateLimitWait(null);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setRateLimitWait((prev) => {
+        if (prev === null || prev <= 1) {
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, [rateLimitWait]);
 
   // Initialize timers for items that don't have one yet
   useEffect(() => {
@@ -83,6 +114,15 @@ export function CartPageClient({
   };
 
   const handleProceedToCheckout = async () => {
+    // Check for rate limit wait
+    if (rateLimitWait !== null && rateLimitWait > 0) {
+      toast.error("Please Wait", {
+        description: `You can create a new order in ${rateLimitWait} minute${rateLimitWait === 1 ? '' : 's'}.`,
+        duration: 4000,
+      });
+      return;
+    }
+
     setIsProcessing(true);
     try {
       const cartItemIds = cartItems.map((item) => item.id);
@@ -91,10 +131,31 @@ export function CartPageClient({
       const orderResult = await createOrder(cartItemIds);
 
       if (!orderResult.success || !orderResult.data) {
-        toast.error("Error", {
-          description: orderResult.error || "Failed to create order.",
-          duration: 4000,
-        });
+        const errorMessage = orderResult.error || "Failed to create order.";
+        
+        // Check if it's a rate limit error
+        if (errorMessage.includes("too many orders") || errorMessage.includes("Please wait")) {
+          // Extract wait time from error message
+          const waitMatch = errorMessage.match(/(\d+)\s*minute/);
+          if (waitMatch) {
+            setRateLimitWait(parseInt(waitMatch[1], 10));
+          }
+          toast.error("Rate Limited", {
+            description: errorMessage,
+            duration: 6000,
+          });
+        } else if (errorMessage.includes("unpaid orders")) {
+          // Pending orders error
+          toast.error("Too Many Pending Orders", {
+            description: errorMessage,
+            duration: 6000,
+          });
+        } else {
+          toast.error("Error", {
+            description: errorMessage,
+            duration: 4000,
+          });
+        }
         return;
       }
 
@@ -117,7 +178,7 @@ export function CartPageClient({
         clearCartItemTimer(item.id);
       });
 
-      toast.success("Order Created! 🎉", {
+      toast.success("Order Created!", {
         description: "Redirecting to payment...",
         duration: 2000,
       });
@@ -174,15 +235,81 @@ export function CartPageClient({
             </div>
           </div>
 
+          {/* Pending Orders Warning (Yellow) */}
+          {showPendingOrderWarning && (
+            <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/30 flex items-start gap-3 text-sm">
+              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-yellow-600" />
+              <div className="space-y-1">
+                <span className="font-medium leading-tight text-yellow-700 dark:text-yellow-500">
+                  You have {pendingOrderCount} unpaid order{pendingOrderCount === 1 ? '' : 's'}
+                </span>
+                <p className="text-xs text-muted-foreground">
+                  Consider completing or cancelling them before creating new orders.{' '}
+                  <Link href="/user/orders" className="text-primary hover:underline">
+                    View orders
+                  </Link>
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Too Many Pending Orders Error (Red) */}
+          {hasTooManyPendingOrders && (
+            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 flex items-start gap-3 text-sm">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-600" />
+              <div className="space-y-1">
+                <span className="font-medium leading-tight text-red-700 dark:text-red-500">
+                  You have {pendingOrderCount} unpaid orders
+                </span>
+                <p className="text-xs text-muted-foreground">
+                  Please complete or cancel some orders before creating new ones.{' '}
+                  <Link href="/user/orders" className="text-primary hover:underline">
+                    Manage orders
+                  </Link>
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Rate Limit Warning */}
+          {rateLimitWait !== null && rateLimitWait > 0 && (
+            <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-start gap-3 text-sm">
+              <Clock className="w-5 h-5 shrink-0 mt-0.5 text-orange-600" />
+              <div className="space-y-1">
+                <span className="font-medium leading-tight text-orange-700 dark:text-orange-500">
+                  Please wait {rateLimitWait} minute{rateLimitWait === 1 ? '' : 's'}
+                </span>
+                <p className="text-xs text-muted-foreground">
+                  You&apos;ve created several orders recently. This limit helps prevent abuse.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Proceed to Checkout Button */}
           <div className="space-y-3">
             <Button
               onClick={handleProceedToCheckout}
-              disabled={isProcessing || cartItems.length === 0}
-              className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center gap-2 text-lg font-semibold rounded-2xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              disabled={
+                isProcessing || 
+                cartItems.length === 0 || 
+                hasTooManyPendingOrders ||
+                (rateLimitWait !== null && rateLimitWait > 0)
+              }
+              className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center gap-2 text-lg font-semibold rounded-2xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {isProcessing ? (
                 "Processing..."
+              ) : hasTooManyPendingOrders ? (
+                <>
+                  <ShoppingCart className="w-5 h-5" />
+                  Complete Existing Orders First
+                </>
+              ) : rateLimitWait !== null && rateLimitWait > 0 ? (
+                <>
+                  <Clock className="w-5 h-5" />
+                  Wait {rateLimitWait} minute{rateLimitWait === 1 ? '' : 's'}
+                </>
               ) : (
                 <>
                   <FileText className="w-5 h-5" />
@@ -192,12 +319,14 @@ export function CartPageClient({
             </Button>
 
             {/* Payment Info */}
-            <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 flex items-start gap-3 text-sm">
-              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-primary" />
-              <span className="font-medium leading-tight text-muted-foreground">
-                You will be redirected to complete payment with cryptocurrency
-              </span>
-            </div>
+            {!hasTooManyPendingOrders && (rateLimitWait === null || rateLimitWait <= 0) && (
+              <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 flex items-start gap-3 text-sm">
+                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-primary" />
+                <span className="font-medium leading-tight text-muted-foreground">
+                  You will be redirected to complete payment with cryptocurrency
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
