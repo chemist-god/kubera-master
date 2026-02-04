@@ -18,6 +18,8 @@ export interface OxaPayInvoiceRequest {
   feePaidByPayer?: number;
   underPaidCoverage?: number;
   sandbox?: boolean;
+  name?: string;      // Merchant/business name to display on payment page
+  logoUrl?: string;   // Full URL to merchant logo (optional)
 }
 
 export interface OxaPayInvoiceResponse {
@@ -110,6 +112,9 @@ export async function createInvoice(
     fee_paid_by_payer: params.feePaidByPayer ?? 1, // Customer pays fee by default
     under_paid_coverage: params.underPaidCoverage ?? 2.5, // 2.5% tolerance
     sandbox: params.sandbox ?? oxapayConfig.sandbox,
+    // Merchant branding
+    name: params.name,
+    logo_url: params.logoUrl,
   };
 
   try {
