@@ -10,10 +10,22 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Copy, CheckCircle2, Clock, AlertCircle, Loader2, ExternalLink } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Copy, CheckCircle2, Clock, AlertCircle, Loader2, ExternalLink, XCircle } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { toast } from 'sonner';
 import { Order } from '@/lib/api/types';
+import { cancelOrder } from '@/lib/actions/orders';
 
 interface PaymentDisplayProps {
   order: Order;
@@ -26,6 +38,7 @@ export function PaymentDisplay({ order }: PaymentDisplayProps) {
   const [isExpired, setIsExpired] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string>(order.status);
   const [isPolling, setIsPolling] = useState(true);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   // Calculate time remaining
   useEffect(() => {
@@ -120,6 +133,32 @@ export function PaymentDisplay({ order }: PaymentDisplayProps) {
     }
   };
 
+  const handleCancelOrder = async () => {
+    setIsCancelling(true);
+    try {
+      const result = await cancelOrder(order.id);
+      
+      if (result.success) {
+        toast.success('Order Cancelled', {
+          description: 'Your order has been cancelled and products have been released.',
+        });
+        setIsPolling(false);
+        router.push('/user/orders');
+        router.refresh();
+      } else {
+        toast.error('Failed to Cancel', {
+          description: result.error || 'Something went wrong',
+        });
+      }
+    } catch (error) {
+      toast.error('Error', {
+        description: 'Failed to cancel order. Please try again.',
+      });
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
       {/* Header */}
@@ -191,7 +230,7 @@ export function PaymentDisplay({ order }: PaymentDisplayProps) {
               </div>
 
               {/* Payment Button */}
-              <div className="flex justify-center">
+              <div className="flex flex-col items-center gap-3">
                 <Button
                   onClick={openPaymentUrl}
                   size="lg"
@@ -200,6 +239,56 @@ export function PaymentDisplay({ order }: PaymentDisplayProps) {
                   <ExternalLink className="w-5 h-5 mr-2" />
                   Open Payment Page
                 </Button>
+
+                {/* Cancel Order Button */}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-destructive"
+                      disabled={isCancelling}
+                    >
+                      <XCircle className="w-4 h-4 mr-2" />
+                      Cancel Order
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Cancel Order?</AlertDialogTitle>
+                      <AlertDialogDescription className="space-y-2">
+                        <p>
+                          Are you sure you want to cancel this order? This action cannot be undone.
+                        </p>
+                        <p className="text-sm">
+                          <strong>Order:</strong> #{order.receiptNumber || order.id.slice(0, 8)}
+                          <br />
+                          <strong>Amount:</strong> ${order.total.toFixed(2)}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Products in this order will be released and become available again.
+                        </p>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Keep Order</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleCancelOrder}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        disabled={isCancelling}
+                      >
+                        {isCancelling ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Cancelling...
+                          </>
+                        ) : (
+                          'Yes, Cancel Order'
+                        )}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
 
               {/* Payment Address (if available) */}
