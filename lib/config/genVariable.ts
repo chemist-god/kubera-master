@@ -90,6 +90,16 @@ export const genVariable = {
     addRange: { min: 1, max: 50 },
   },
 
+  // Order Protection & Rate Limiting
+  orderLimits: {
+    maxOrdersPerHour: 5,                   // Max orders user can create per hour
+    maxPendingOrders: 5,                   // Max pending orders before blocking
+    pendingOrderWarningThreshold: 3,       // Show warning at this count
+    autoCleanupAfterHours: 24,             // Auto-cancel old orders after X hours
+    rateLimitWindowMinutes: 60,            // Rate limit window in minutes
+    paymentExpiryMinutes: 30,              // Payment window expires after X minutes
+  },
+
   // Assets
   assets: {
     logoUrl: "/logo.png",
